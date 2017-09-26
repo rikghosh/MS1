@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="https://d3js.org/d3.v4.min.js"></script>
+    </head>
+
+    <body>
+        <script>
+            d3.select('body')
+                .append('svg')
+                .attr('width', window.innerWidth)
+                .attr('height', window.innerHeight);
+            
+            var svg = d3.select('svg');
+            
+                
+            
+            d3.csv('wiid.csv', function(error, data) {
+                
+                if (error) throw error;
+                
+                // subset data to get only most recent data for each country
+                data = data.filter(function(d) {return d.Gini != 0});
+                var countries = [];
+                for (var i in data) {
+                    countries.push(data[i].Country)
+                }
+                
+                countries = countries.filter(function(elem, pos) {
+                     return countries.indexOf(elem) == pos;
+                });
+                
+                countries.pop();
+                
+                var filteredData = []
+                
+                for (var i in countries) {
+                    var tmp = data.filter(function(d) {return d.Country == countries[i]});
+                    var years = [];
+                    for (var i in tmp) {
+                        years.push(tmp[i].Year);
+                    }
+                    tmp = tmp.filter(function(d) {return d.Year == d3.max(years)});
+                    tmp = tmp[tmp.length - 1];
+                    filteredData.push(tmp);
+                }
+                
+                console.log(filteredData);
+                
+                // subset data instead by looking only at World Bank data (another option, easier to filter but not as interesting)
+                // var filteredData = data.filter(function(d) {return d.Source == 'World Bank' || d.Source == 'World Bank 2016';});
+                
+                
+                console.log(filteredData);
+                
+                // create array of gini coefficients
+                var ginis = [];
+                for (var i in filteredData) {
+                    ginis.push(filteredData[i].Gini)
+                }
+                
+                var minGini = d3.min(ginis);
+                var maxGini = d3.max(ginis);
+                
+            
+                // separate into income groups
+                var low = filteredData.filter(function(d) {return d.Incomegroup == 'Low income';});
+                var lowGinis = [];
+                for (var i in low) {
+                    lowGinis.push(low[i].Gini)
+                }
+                
+                var lowerMiddle = filteredData.filter(function(d) {return d.Incomegroup == 'Lower middle income';});
+                var lowMidGinis = [];
+                for (var i in lowerMiddle) {
+                    lowMidGinis.push(lowerMiddle[i].Gini)
+                }
+                
+                var upperMiddle = filteredData.filter(function(d) {return d.Incomegroup == 'Upper middle income';});
+                var upMidGinis = [];
+                for (var i in upperMiddle) {
+                    upMidGinis.push(upperMiddle[i].Gini)
+                }
+                
+                var highOECD = filteredData.filter(function(d) {return d.Incomegroup == 'High income: OECD';});
+                var highOGinis = [];
+                for (var i in highOECD) {
+                    highOGinis.push(highOECD[i].Gini)
+                }
+                
+                console.log(highOGinis);
+                
+                var highNonOECD = filteredData.filter(function(d) {return d.Incomegroup == 'High income: non-OECD';});
+                var highNGinis = [];
+                for (var i in highNonOECD) {
+                    highNGinis.push(highNonOECD[i].Gini)
+                }
+                
+                
+                // calculate gini min and max for each income group
+                var lowMin = d3.min(low, function(d) {return d.Gini});
+                var lowMax = d3.max(low, function(d) {return d.Gini});
+                
+                var lowMidMin = d3.min(lowerMiddle, function(d) {return d.Gini});
+                var lowMidMax = d3.max(lowerMiddle, function(d) {return d.Gini});
+                
+                var upMidMin = d3.min(upperMiddle, function(d) {return d.Gini});
+                var upMidMax = d3.max(upperMiddle, function(d) {return d.Gini});
+                
+                var highOMin = d3.min(highOECD, function(d) {return d.Gini});
+                var highOMax = d3.max(highOECD, function(d) {return d.Gini});
+                
+                var highNMin = d3.min(highNonOECD, function(d) {return d.Gini});
+                var highNMax = d3.max(highNonOECD, function(d) {return d.Gini});
+                
+                console.log(lowMin);
+                
+                // create horizontal scale
+                var x = d3.scaleLinear()
+                    .domain([0, 100]) // possible range of gini values
+                    .range([400, window.innerWidth-200]);
+                    
+                svg.append('text')
+                    .text('GINI COEFFICIENTS OF COUNTRIES BY INCOME GROUP')
+                    .attr('x', 50)
+                    .attr('y', 50)
+                    .attr('font-family', 'sans-serif')
+                    .attr('font-size', '20px');
+
+                svg.append('text')
+                    .text('Gini = 0')
+                    .attr('x', x(0))
+                    .attr('y', 125)
+                    .attr('font-family', 'sans-serif')
+                    .attr('font-size', '20px');
+                    
+                svg.append('line')
+                    .attr('x1', x(0) + 35)
+                    .attr('x2', x(0) + 35)
+                    .attr('y1', 135)
+                    .attr('y2', window.innerHeight - 100)
+                    .attr('stroke-width', 2)
+                    .attr('stroke', 'black');
+                    
+                svg.append('text')
+                    .text('Gini = 100')
+                    .attr('x', x(100))
+                    .attr('y', 125)
+                    .attr('font-family', 'sans-serif')
+                    .attr('font-size', '20px');
+                    
+                svg.append('line')
+                    .attr('x1', x(100) + 47)
+                    .attr('x2', x(100) + 47)
+                    .attr('y1', 135)
+                    .attr('y2', window.innerHeight - 100)
+                    .attr('stroke-width', 2)
+                    .attr('stroke', 'black');    
+                
+                var lowShape = svg.append("rect")
+                    .attr('x', x(lowMin))
+                    .attr('y', window.innerHeight/6)
+                    .attr('width', x(lowMax)-x(lowMin))
+                    .attr('height', 50)
+                    .attr('fill', 'white')
+                    .attr('stroke', 'black')
+                    .attr('stroke-width', 3);
+                    
+                svg.append('text')
+                    .text('LOW INCOME')
+                    .attr('x', 50)
+                    .attr('y', window.innerHeight/6 + 25)
+                    .attr('font-size', '20px')
+                    .attr('font-family', 'sans-serif');
+                    
+                    
+                var lowMidShape = svg.append("rect")
+                    .attr('x', x(lowMidMin))
+                    .attr('y', window.innerHeight/3)
+                    .attr('width', x(lowMidMax)-x(lowMidMin))
+                    .attr('height', 50)
+                    .attr('fill', 'white')
+                    .attr('stroke', 'black')
+                    .attr('stroke-width', 3);
+                    
+                svg.append('text')
+                    .text('LOWER MIDDLE INCOME')
+                    .attr('x', 50)
+                    .attr('y', window.innerHeight/3 + 25)
+                    .attr('font-size', '20px')
+                    .attr('font-family', 'sans-serif');
+                    
+                var upMidShape = svg.append("rect")
+                    .attr('x', x(upMidMin))
+                    .attr('y', window.innerHeight/2)
+                    .attr('width', x(upMidMax)-x(upMidMin))
+                    .attr('height', 50)
+                    .attr('fill', 'white')
+                    .attr('stroke', 'black')
+                    .attr('stroke-width', 3);
+                    
+                svg.append('text')
+                    .text('UPPER MIDDLE INCOME')
+                    .attr('x', 50)
+                    .attr('y', window.innerHeight/2 + 25)
+                    .attr('font-size', '20px')
+                    .attr('font-family', 'sans-serif');
+                    
+                var highOShape = svg.append("rect")
+                    .attr('x', x(highOMin))
+                    .attr('y', 2*window.innerHeight/3)
+                    .attr('width', x(highOMax)-x(highOMin))
+                    .attr('height', 50)
+                    .attr('fill', 'white')
+                    .attr('stroke', 'black')
+                    .attr('stroke-width', 3);
+                    
+                svg.append('text')
+                    .text('HIGH INCOME, OECD')
+                    .attr('x', 50)
+                    .attr('y', 2*window.innerHeight/3 + 25)
+                    .attr('font-size', '20px')
+                    .attr('font-family', 'sans-serif');
+                    
+                var highNShape = svg.append("rect")
+                    .attr('x', x(highNMin))
+                    .attr('y', 5*window.innerHeight/6)
+                    .attr('width', x(highNMax)-x(highNMin))
+                    .attr('height', 50)
+                    .attr('fill', 'white')
+                    .attr('stroke', 'black')
+                    .attr('stroke-width', 3);
+                    
+                svg.append('text')
+                    .text('HIGH INCOME, NON-OECD')
+                    .attr('x', 50)
+                    .attr('y', 5*window.innerHeight/6 + 25)
+                    .attr('font-size', '20px')
+                    .attr('font-family', 'sans-serif');
+                    
+                
+                // add individual country lines
+                svg.selectAll('line1')
+                    .data(lowGinis)
+                    .enter()
+                    .append('line')
+                    .attr('x1', function(d, i) { return x(d) })
+                    .attr('x2', function(d, i) { return x(d) })
+                    .attr('y1', window.innerHeight/6)
+                    .attr('y2', window.innerHeight/6 + 50)
+                    .attr('stroke-width', 2)
+                    .attr('stroke', 'black');
+                    
+                svg.selectAll('line2')
+                    .data(lowMidGinis)
+                    .enter()
+                    .append('line')
+                    .attr('x1', function(d, i) { return x(d) })
+                    .attr('x2', function(d, i) { return x(d) })
+                    .attr('y1', window.innerHeight/3)
+                    .attr('y2', window.innerHeight/3 + 50)
+                    .attr('stroke-width', 2)
+                    .attr('stroke', 'black');
+                    
+                svg.selectAll('line3')
+                    .data(upMidGinis)
+                    .enter()
+                    .append('line')
+                    .attr('x1', function(d, i) { return x(d) })
+                    .attr('x2', function(d, i) { return x(d) })
+                    .attr('y1', window.innerHeight/2)
+                    .attr('y2', window.innerHeight/2 + 50)
+                    .attr('stroke-width', 1)
+                    .attr('stroke', 'black');
+                    
+                svg.selectAll('line4')
+                    .data(highOGinis)
+                    .enter()
+                    .append('line')
+                    .attr('x1', function(d, i) { return x(d) })
+                    .attr('x2', function(d, i) { return x(d) })
+                    .attr('y1', 2*window.innerHeight/3)
+                    .attr('y2', 2*window.innerHeight/3 + 50)
+                    .attr('stroke-width', 2)
+                    .attr('stroke', 'black');
+                    
+                svg.selectAll('line5')
+                    .data(highNGinis)
+                    .enter()
+                    .append('line')
+                    .attr('x1', function(d, i) { return x(d) })
+                    .attr('x2', function(d, i) { return x(d) })
+                    .attr('y1', 5*window.innerHeight/6)
+                    .attr('y2', 5*window.innerHeight/6 + 50)
+                    .attr('stroke-width', 2)
+                    .attr('stroke', 'black');
+                
+                
+
+     
+            });
+            
+
+        </script>
+    </body>
+</html>
