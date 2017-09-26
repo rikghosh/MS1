@@ -4,7 +4,7 @@
         <script src="https://d3js.org/d3.v4.min.js"></script>
         <link href="https://fonts.googleapis.com/css?family=Sanchez" rel="stylesheet">
         <style>
-            html {background-color: 'light grey'};
+            html {background-color: #EEE};
         </style>
     </head>
 
@@ -117,12 +117,11 @@
                 var highNMin = d3.min(highNonOECD, function(d) {return d.Gini});
                 var highNMax = d3.max(highNonOECD, function(d) {return d.Gini});
                 
-                console.log(lowMin);
                 
                 // create horizontal scale
                 var x = d3.scaleLinear()
-                    .domain([0, 100]) // possible range of gini values
-                    .range([400, window.innerWidth-200]);
+                    .domain([20, 60]) // possible range of gini values
+                    .range([310, window.innerWidth-200]);
                     
                 svg.append('text')
                     .text('WEALTH INEQUALITY ACROSS NATIONS AND INCOME GROUPS')
@@ -132,181 +131,227 @@
                     .attr('font-size', '20px');
 
                 svg.append('text')
-                    .text('GINI = 0')
-                    .attr('x', x(0))
+                    .text('GINI = 21')
+                    .attr('x', x(21))
                     .attr('y', 125)
                     .attr('font-family', 'Sanchez')
                     .attr('font-size', '18px');
                     
                 svg.append('line')
-                    .attr('x1', x(0) + 35)
-                    .attr('x2', x(0) + 35)
+                    .attr('x1', x(21) + 35)
+                    .attr('x2', x(21) + 35)
                     .attr('y1', 135)
                     .attr('y2', window.innerHeight - 100)
                     .attr('stroke-width', 2)
                     .attr('stroke', 'black');
                     
-                // svg.append('line')
-                //     .attr('x1', x(0) + 77)
-                //     .attr('x2', x(100) - 5)
-                //     .attr('y1', 120)
-                //     .attr('y2', 120)
-                //     .attr('stroke-width', 2)
-                //     .attr('stroke', 'black');
-                    
                     
                 svg.append('text')
-                    .text('GINI = 100')
-                    .attr('x', x(100))
+                    .text('GINI = 60')
+                    .attr('x', x(60))
                     .attr('y', 125)
                     .attr('font-family', 'Sanchez')
                     .attr('font-size', '18px');
                     
                 svg.append('line')
-                    .attr('x1', x(100) + 47)
-                    .attr('x2', x(100) + 47)
+                    .attr('x1', x(60) + 47)
+                    .attr('x2', x(60) + 47)
                     .attr('y1', 135)
                     .attr('y2', window.innerHeight - 100)
                     .attr('stroke-width', 2)
                     .attr('stroke', 'black');    
                 
-                var lowShape = svg.append("rect")
-                    .attr('x', x(lowMin))
-                    .attr('y', window.innerHeight/6)
-                    .attr('width', x(lowMax)-x(lowMin))
-                    .attr('height', 50)
-                    .attr('fill', 'white')
-                    .attr('stroke', 'black')
-                    .attr('stroke-width', 3);
+                // var lowShape = svg.append("rect")
+                //     .attr('x', x(lowMin))
+                //     .attr('y', window.innerHeight/6)
+                //     .attr('width', x(lowMax)-x(lowMin))
+                //     .attr('height', 50)
+                //     .attr('fill', '#EEE')
+                //     .attr('stroke', 'black')
+                //     .attr('stroke-width', 1);
+                
+                // var lowMidShape = svg.append("rect")
+                //     .attr('x', x(lowMidMin))
+                //     .attr('y', window.innerHeight/3)
+                //     .attr('width', x(lowMidMax)-x(lowMidMin))
+                //     .attr('height', 50)
+                //     .attr('fill', '#EEE')
+                //     .attr('stroke', 'black')
+                //     .attr('stroke-width', 1);
+                
+                // var upMidShape = svg.append("rect")
+                //     .attr('x', x(upMidMin))
+                //     .attr('y', window.innerHeight/2)
+                //     .attr('width', x(upMidMax)-x(upMidMin))
+                //     .attr('height', 50)
+                //     .attr('fill', '#EEE')
+                //     .attr('stroke', 'black')
+                //     .attr('stroke-width', 1);
+                    
+                // var highOShape = svg.append("rect")
+                //     .attr('x', x(highOMin))
+                //     .attr('y', 2*window.innerHeight/3)
+                //     .attr('width', x(highOMax)-x(highOMin))
+                //     .attr('height', 50)
+                //     .attr('fill', '#EEE')
+                //     .attr('stroke', 'black')
+                //     .attr('stroke-width', 1);
+                
+                // var highNShape = svg.append("rect")
+                //     .attr('x', x(highNMin))
+                //     .attr('y', 5*window.innerHeight/6)
+                //     .attr('width', x(highNMax)-x(highNMin))
+                //     .attr('height', 50)
+                //     .attr('fill', '#EEE')
+                //     .attr('stroke', 'black')
+                //     .attr('stroke-width', 1);
                     
                 svg.append('text')
                     .text('LOW INCOME')
                     .attr('x', 50)
                     .attr('y', window.innerHeight/6 + 25)
                     .attr('font-size', '20px')
-                    .attr('font-family', 'Sanchez');
-                    
-                    
-                var lowMidShape = svg.append("rect")
-                    .attr('x', x(lowMidMin))
-                    .attr('y', window.innerHeight/3)
-                    .attr('width', x(lowMidMax)-x(lowMidMin))
-                    .attr('height', 50)
-                    .attr('fill', 'white')
-                    .attr('stroke', 'black')
-                    .attr('stroke-width', 3);
+                    .attr('font-family', 'Sanchez')
+                    .attr('fill', 'goldenrod');
                     
                 svg.append('text')
                     .text('LOWER MIDDLE INCOME')
                     .attr('x', 50)
                     .attr('y', window.innerHeight/3 + 25)
                     .attr('font-size', '20px')
-                    .attr('font-family', 'Sanchez');
-                    
-                var upMidShape = svg.append("rect")
-                    .attr('x', x(upMidMin))
-                    .attr('y', window.innerHeight/2)
-                    .attr('width', x(upMidMax)-x(upMidMin))
-                    .attr('height', 50)
-                    .attr('fill', 'white')
-                    .attr('stroke', 'black')
-                    .attr('stroke-width', 3);
+                    .attr('font-family', 'Sanchez')
+                    .attr('fill', 'olive');
                     
                 svg.append('text')
                     .text('UPPER MIDDLE INCOME')
                     .attr('x', 50)
                     .attr('y', window.innerHeight/2 + 25)
                     .attr('font-size', '20px')
-                    .attr('font-family', 'Sanchez');
-                    
-                var highOShape = svg.append("rect")
-                    .attr('x', x(highOMin))
-                    .attr('y', 2*window.innerHeight/3)
-                    .attr('width', x(highOMax)-x(highOMin))
-                    .attr('height', 50)
-                    .attr('fill', 'white')
-                    .attr('stroke', 'black')
-                    .attr('stroke-width', 3);
+                    .attr('font-family', 'Sanchez')
+                    .attr('fill', 'navy');
                     
                 svg.append('text')
                     .text('HIGH INCOME, OECD')
                     .attr('x', 50)
                     .attr('y', 2*window.innerHeight/3 + 25)
                     .attr('font-size', '20px')
-                    .attr('font-family', 'Sanchez');
-                    
-                var highNShape = svg.append("rect")
-                    .attr('x', x(highNMin))
-                    .attr('y', 5*window.innerHeight/6)
-                    .attr('width', x(highNMax)-x(highNMin))
-                    .attr('height', 50)
-                    .attr('fill', 'white')
-                    .attr('stroke', 'black')
-                    .attr('stroke-width', 3);
+                    .attr('font-family', 'Sanchez')
+                    .attr('fill', 'maroon');
                     
                 svg.append('text')
                     .text('HIGH INCOME, NON-OECD')
                     .attr('x', 50)
                     .attr('y', 5*window.innerHeight/6 + 25)
                     .attr('font-size', '20px')
-                    .attr('font-family', 'Sanchez');
+                    .attr('font-family', 'Sanchez')
+                    .attr('fill', 'lightSlateGray');
                     
                 
-                // add individual country lines
-                svg.selectAll('line1')
+                // add markers for individual countries
+                // svg.selectAll('line1')
+                //     .data(lowGinis)
+                //     .enter()
+                //     .append('line')
+                //     .attr('x1', function(d, i) { return x(d) })
+                //     .attr('x2', function(d, i) { return x(d) })
+                //     .attr('y1', window.innerHeight/6)
+                //     .attr('y2', window.innerHeight/6 + 50)
+                //     .attr('stroke-width', 1)
+                //     .attr('stroke', 'black');
+                    
+                svg.selectAll('point1')
                     .data(lowGinis)
                     .enter()
-                    .append('line')
-                    .attr('x1', function(d, i) { return x(d) })
-                    .attr('x2', function(d, i) { return x(d) })
-                    .attr('y1', window.innerHeight/6)
-                    .attr('y2', window.innerHeight/6 + 50)
-                    .attr('stroke-width', 2)
-                    .attr('stroke', 'black');
+                    .append('circle')
+                    .attr('cx', function(d, i) { return x(d) })
+                    .attr('cy', window.innerHeight/6 + 25)
+                    .attr('r', 5)
+                    .attr('fill', 'goldenrod')
+                    .attr('opacity', '0.5');
                     
-                svg.selectAll('line2')
+                // svg.selectAll('line2')
+                //     .data(lowMidGinis)
+                //     .enter()
+                //     .append('line')
+                //     .attr('x1', function(d, i) { return x(d) })
+                //     .attr('x2', function(d, i) { return x(d) })
+                //     .attr('y1', window.innerHeight/3)
+                //     .attr('y2', window.innerHeight/3 + 50)
+                //     .attr('stroke-width', 1)
+                //     .attr('stroke', 'black');
+                    
+                svg.selectAll('point2')
                     .data(lowMidGinis)
                     .enter()
-                    .append('line')
-                    .attr('x1', function(d, i) { return x(d) })
-                    .attr('x2', function(d, i) { return x(d) })
-                    .attr('y1', window.innerHeight/3)
-                    .attr('y2', window.innerHeight/3 + 50)
-                    .attr('stroke-width', 2)
-                    .attr('stroke', 'black');
+                    .append('circle')
+                    .attr('cx', function(d, i) { return x(d) })
+                    .attr('cy', window.innerHeight/3 + 25)
+                    .attr('r', 5)
+                    .attr('fill', 'olive')
+                    .attr('opacity', '0.5');
                     
-                svg.selectAll('line3')
+                // svg.selectAll('line3')
+                //     .data(upMidGinis)
+                //     .enter()
+                //     .append('line')
+                //     .attr('x1', function(d, i) { return x(d) })
+                //     .attr('x2', function(d, i) { return x(d) })
+                //     .attr('y1', window.innerHeight/2)
+                //     .attr('y2', window.innerHeight/2 + 50)
+                //     .attr('stroke-width', 1)
+                //     .attr('stroke', 'black');
+                    
+                svg.selectAll('point3')
                     .data(upMidGinis)
                     .enter()
-                    .append('line')
-                    .attr('x1', function(d, i) { return x(d) })
-                    .attr('x2', function(d, i) { return x(d) })
-                    .attr('y1', window.innerHeight/2)
-                    .attr('y2', window.innerHeight/2 + 50)
-                    .attr('stroke-width', 1)
-                    .attr('stroke', 'black');
+                    .append('circle')
+                    .attr('cx', function(d, i) { return x(d) })
+                    .attr('cy', window.innerHeight/2 + 25)
+                    .attr('r', 5)
+                    .attr('fill', 'navy')
+                    .attr('opacity', '0.5');
                     
-                svg.selectAll('line4')
+                // svg.selectAll('line4')
+                //     .data(highOGinis)
+                //     .enter()
+                //     .append('line')
+                //     .attr('x1', function(d, i) { return x(d) })
+                //     .attr('x2', function(d, i) { return x(d) })
+                //     .attr('y1', 2*window.innerHeight/3)
+                //     .attr('y2', 2*window.innerHeight/3 + 50)
+                //     .attr('stroke-width', 1)
+                //     .attr('stroke', 'black');
+                    
+                svg.selectAll('point4')
                     .data(highOGinis)
                     .enter()
-                    .append('line')
-                    .attr('x1', function(d, i) { return x(d) })
-                    .attr('x2', function(d, i) { return x(d) })
-                    .attr('y1', 2*window.innerHeight/3)
-                    .attr('y2', 2*window.innerHeight/3 + 50)
-                    .attr('stroke-width', 2)
-                    .attr('stroke', 'black');
+                    .append('circle')
+                    .attr('cx', function(d, i) { return x(d) })
+                    .attr('cy', 2*window.innerHeight/3 + 25)
+                    .attr('r', 5)
+                    .attr('fill', 'maroon')
+                    .attr('opacity', '0.5');
                     
-                svg.selectAll('line5')
+                // svg.selectAll('line5')
+                //     .data(highNGinis)
+                //     .enter()
+                //     .append('line')
+                //     .attr('x1', function(d, i) { return x(d) })
+                //     .attr('x2', function(d, i) { return x(d) })
+                //     .attr('y1', 5*window.innerHeight/6)
+                //     .attr('y2', 5*window.innerHeight/6 + 50)
+                //     .attr('stroke-width', 1)
+                //     .attr('stroke', 'black');
+                    
+                svg.selectAll('point5')
                     .data(highNGinis)
                     .enter()
-                    .append('line')
-                    .attr('x1', function(d, i) { return x(d) })
-                    .attr('x2', function(d, i) { return x(d) })
-                    .attr('y1', 5*window.innerHeight/6)
-                    .attr('y2', 5*window.innerHeight/6 + 50)
-                    .attr('stroke-width', 2)
-                    .attr('stroke', 'black');
+                    .append('circle')
+                    .attr('cx', function(d, i) { return x(d) })
+                    .attr('cy', 5*window.innerHeight/6 + 25)
+                    .attr('r', 5)
+                    .attr('fill', 'darkSlateGray')
+                    .attr('opacity', '0.5');
                 
                 
 
