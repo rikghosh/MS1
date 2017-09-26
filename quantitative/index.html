@@ -2,6 +2,10 @@
 <html>
     <head>
         <script src="https://d3js.org/d3.v4.min.js"></script>
+        <link href="https://fonts.googleapis.com/css?family=Sanchez" rel="stylesheet">
+        <style>
+            html {background-color: 'light grey'};
+        </style>
     </head>
 
     <body>
@@ -121,18 +125,18 @@
                     .range([400, window.innerWidth-200]);
                     
                 svg.append('text')
-                    .text('GINI COEFFICIENTS OF COUNTRIES BY INCOME GROUP')
+                    .text('WEALTH INEQUALITY ACROSS NATIONS AND INCOME GROUPS')
                     .attr('x', 50)
                     .attr('y', 50)
-                    .attr('font-family', 'sans-serif')
+                    .attr('font-family', 'Sanchez')
                     .attr('font-size', '20px');
 
                 svg.append('text')
-                    .text('Gini = 0')
+                    .text('GINI = 0')
                     .attr('x', x(0))
                     .attr('y', 125)
-                    .attr('font-family', 'sans-serif')
-                    .attr('font-size', '20px');
+                    .attr('font-family', 'Sanchez')
+                    .attr('font-size', '18px');
                     
                 svg.append('line')
                     .attr('x1', x(0) + 35)
@@ -142,12 +146,21 @@
                     .attr('stroke-width', 2)
                     .attr('stroke', 'black');
                     
+                // svg.append('line')
+                //     .attr('x1', x(0) + 77)
+                //     .attr('x2', x(100) - 5)
+                //     .attr('y1', 120)
+                //     .attr('y2', 120)
+                //     .attr('stroke-width', 2)
+                //     .attr('stroke', 'black');
+                    
+                    
                 svg.append('text')
-                    .text('Gini = 100')
+                    .text('GINI = 100')
                     .attr('x', x(100))
                     .attr('y', 125)
-                    .attr('font-family', 'sans-serif')
-                    .attr('font-size', '20px');
+                    .attr('font-family', 'Sanchez')
+                    .attr('font-size', '18px');
                     
                 svg.append('line')
                     .attr('x1', x(100) + 47)
@@ -171,7 +184,7 @@
                     .attr('x', 50)
                     .attr('y', window.innerHeight/6 + 25)
                     .attr('font-size', '20px')
-                    .attr('font-family', 'sans-serif');
+                    .attr('font-family', 'Sanchez');
                     
                     
                 var lowMidShape = svg.append("rect")
@@ -188,7 +201,7 @@
                     .attr('x', 50)
                     .attr('y', window.innerHeight/3 + 25)
                     .attr('font-size', '20px')
-                    .attr('font-family', 'sans-serif');
+                    .attr('font-family', 'Sanchez');
                     
                 var upMidShape = svg.append("rect")
                     .attr('x', x(upMidMin))
@@ -204,7 +217,7 @@
                     .attr('x', 50)
                     .attr('y', window.innerHeight/2 + 25)
                     .attr('font-size', '20px')
-                    .attr('font-family', 'sans-serif');
+                    .attr('font-family', 'Sanchez');
                     
                 var highOShape = svg.append("rect")
                     .attr('x', x(highOMin))
@@ -220,7 +233,7 @@
                     .attr('x', 50)
                     .attr('y', 2*window.innerHeight/3 + 25)
                     .attr('font-size', '20px')
-                    .attr('font-family', 'sans-serif');
+                    .attr('font-family', 'Sanchez');
                     
                 var highNShape = svg.append("rect")
                     .attr('x', x(highNMin))
@@ -236,7 +249,7 @@
                     .attr('x', 50)
                     .attr('y', 5*window.innerHeight/6 + 25)
                     .attr('font-size', '20px')
-                    .attr('font-family', 'sans-serif');
+                    .attr('font-family', 'Sanchez');
                     
                 
                 // add individual country lines
