@@ -4,7 +4,7 @@
         <script src="https://d3js.org/d3.v4.min.js"></script>
         <link href="https://fonts.googleapis.com/css?family=Sanchez" rel="stylesheet">
         <style>
-            html {background-color: #EEE};
+            html {background-color: #EEE}
         </style>
     </head>
 
@@ -63,42 +63,21 @@
                     ginis.push(filteredData[i].Gini)
                 }
                 
+                
                 var minGini = d3.min(ginis);
                 var maxGini = d3.max(ginis);
                 
             
                 // separate into income groups
                 var low = filteredData.filter(function(d) {return d.Incomegroup == 'Low income';});
-                var lowGinis = [];
-                for (var i in low) {
-                    lowGinis.push(low[i].Gini)
-                }
                 
                 var lowerMiddle = filteredData.filter(function(d) {return d.Incomegroup == 'Lower middle income';});
-                var lowMidGinis = [];
-                for (var i in lowerMiddle) {
-                    lowMidGinis.push(lowerMiddle[i].Gini)
-                }
                 
                 var upperMiddle = filteredData.filter(function(d) {return d.Incomegroup == 'Upper middle income';});
-                var upMidGinis = [];
-                for (var i in upperMiddle) {
-                    upMidGinis.push(upperMiddle[i].Gini)
-                }
                 
                 var highOECD = filteredData.filter(function(d) {return d.Incomegroup == 'High income: OECD';});
-                var highOGinis = [];
-                for (var i in highOECD) {
-                    highOGinis.push(highOECD[i].Gini)
-                }
-                
-                console.log(highOGinis);
                 
                 var highNonOECD = filteredData.filter(function(d) {return d.Incomegroup == 'High income: non-OECD';});
-                var highNGinis = [];
-                for (var i in highNonOECD) {
-                    highNGinis.push(highNonOECD[i].Gini)
-                }
                 
                 
                 // calculate gini min and max for each income group
@@ -260,10 +239,10 @@
                 //     .attr('stroke', 'black');
                     
                 svg.selectAll('point1')
-                    .data(lowGinis)
+                    .data(low)
                     .enter()
                     .append('circle')
-                    .attr('cx', function(d, i) { return x(d) })
+                    .attr('cx', function(d, i) { return x(d.Gini) })
                     .attr('cy', window.innerHeight/6 + 25)
                     .attr('r', 5)
                     .attr('fill', 'goldenrod')
@@ -279,16 +258,32 @@
                 //     .attr('y2', window.innerHeight/3 + 50)
                 //     .attr('stroke-width', 1)
                 //     .attr('stroke', 'black');
+                
+                var tooltip = d3.select("body").append("div")	
+                    .attr("class", "tooltip")				
+                    .style("opacity", 0);
                     
                 svg.selectAll('point2')
-                    .data(lowMidGinis)
+                    .data(lowerMiddle)
                     .enter()
                     .append('circle')
-                    .attr('cx', function(d, i) { return x(d) })
+                    .attr('cx', function(d, i) { return x(d.Gini) })
                     .attr('cy', window.innerHeight/3 + 25)
                     .attr('r', 5)
                     .attr('fill', 'olive')
-                    .attr('opacity', '0.5');
+                    .attr('opacity', '0.5')
+                    .on('mouseover', function(d) { 	
+                        tooltip.style("opacity", .9);
+                
+                        tooltip.html(d.Country)	
+                            .style("left", d3.event.pageX + "px")     
+                            .style("top", (d3.event.pageY - 28) + "px");	
+                        })
+                    .on("mouseout", function(d) {		
+                        tooltip.transition()		
+                            .duration(500)		
+                            .style("opacity", 0);	
+        });
                     
                 // svg.selectAll('line3')
                 //     .data(upMidGinis)
@@ -302,10 +297,10 @@
                 //     .attr('stroke', 'black');
                     
                 svg.selectAll('point3')
-                    .data(upMidGinis)
+                    .data(upperMiddle)
                     .enter()
                     .append('circle')
-                    .attr('cx', function(d, i) { return x(d) })
+                    .attr('cx', function(d, i) { return x(d.Gini) })
                     .attr('cy', window.innerHeight/2 + 25)
                     .attr('r', 5)
                     .attr('fill', 'navy')
@@ -323,10 +318,10 @@
                 //     .attr('stroke', 'black');
                     
                 svg.selectAll('point4')
-                    .data(highOGinis)
+                    .data(highOECD)
                     .enter()
                     .append('circle')
-                    .attr('cx', function(d, i) { return x(d) })
+                    .attr('cx', function(d, i) { return x(d.Gini) })
                     .attr('cy', 2*window.innerHeight/3 + 25)
                     .attr('r', 5)
                     .attr('fill', 'maroon')
@@ -344,10 +339,10 @@
                 //     .attr('stroke', 'black');
                     
                 svg.selectAll('point5')
-                    .data(highNGinis)
+                    .data(highNonOECD)
                     .enter()
                     .append('circle')
-                    .attr('cx', function(d, i) { return x(d) })
+                    .attr('cx', function(d, i) { return x(d.Gini) })
                     .attr('cy', 5*window.innerHeight/6 + 25)
                     .attr('r', 5)
                     .attr('fill', 'darkSlateGray')

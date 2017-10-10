@@ -15,23 +15,39 @@
             
             d3.tsv('groceries.tsv', function(error, data) {
                 
+                if (error) throw error;
+                
                 console.log(data);
                 
-                data.forEach(function(d, i) {
-                    svg.append('text')
-                        .text(d.amount + ' | ' + d.unit + ' | ' + d.item + ' | ' + d.source)
-                        .attr('x', window.innerWidth/2)
-                        .attr('y', i * 20 + 20)
-                        .style('text-anchor', 'middle')
-                        .style('fill', function() {
+                // data.forEach(function(d, i) {
+                //     svg.append('text')
+                //         .text(i + ') ' + d.amount + ' | ' + d.unit + ' | ' + d.item + ' | ' + d.source)
+                //         .attr('x', window.innerWidth/2)
+                //         .attr('y', (i+1) * 30)
+                //         .style('text-anchor', 'middle')
+                //         .style('fill', function() {
+                //             if (d.source == 'store')
+                //                 return 'rgb(0, 255, 0)';
+                //             else
+                //                 return 'darkgray';
+                //             });
+                
+                svg.selectAll('.item')
+                    .data(data)
+                    .enter()
+                    .append('text')
+                    .text(function(d, i) { return i + ') ' + d.amount + ' | ' + d.unit + ' | ' + d.item + ' | ' + d.source; })
+                    .attr('x', window.innerWidth/2)
+                    .attr('y', function(d, i) { return (i+1) * 30; })
+                    .style('text-anchor', 'middle')
+                    .style('fill', function(d) {
                             if (d.source == 'store')
-                                return 'rgb(0,255,0)';
+                                return 'rgb(0, 255, 0)';
                             else
-                                return 'darkgrey';
-                            
-                        });
+                                return 'darkgray';
+                            });
                     
-                });
+     
             });
             
 
