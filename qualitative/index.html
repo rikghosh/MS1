@@ -104,7 +104,7 @@
             kwic = RiTa.kwic(joined, selected, {
                 ignorePunctuation: true,
                 ignoreStopWords: true,
-                wordCount: 6
+                wordCount: 8
             });
             
             displayWordFreq();
@@ -115,23 +115,35 @@
             for (var i = 0; i < kwic.length; i++) {
               var parts = kwic[i].split(selected);
               var pos = i * 30 + 75
-              var x = 5 * width / 8,
+              var x = 3 * width / 8,
                   y = pos;
                   
         
               if (y > height - 20) return;
         
+            //   fill(0);
+            //   textAlign(RIGHT);
+            //   text(parts[0], x - tw, y);
+        
+            //   fill(100, 150, 50);
+            //   textAlign(CENTER);
+            //   text(selected, x, y);
+        
+            //   fill(0);
+            //   textAlign(LEFT);
+            //   text(parts[1], x + tw, y);
+            
               fill(0);
-              textAlign(RIGHT);
-              text(parts[0], x - tw, y);
+              textAlign(LEFT);
+              text(parts[0], x, y);
         
               fill(100, 150, 50);
-              textAlign(CENTER);
-              text(selected, x, y);
+              textAlign(LEFT);
+              text(selected, x + textWidth(parts[0]), y);
         
               fill(0);
               textAlign(LEFT);
-              text(parts[1], x + tw, y);
+              text(parts[1], x + textWidth(selected) + textWidth(parts[0]), y);
             }
         }
         
@@ -140,7 +152,7 @@
             textSize(15);
             text("MOST FREQUENT WORDS:", 50, 40);
             textAlign(CENTER);
-            text("CONTEXT:", 5*width/8, 40);
+            text("CONTEXT:", (3*width/8 + 36), 40);
             textAlign(LEFT);
             // text("APPEARS " + wordFreqSortable[0].count + " TIMES", 100, 40)
             // text("APPEARS " + wordFreqSortable[wordFreqSortable.length-1].count + " TIMES", 100, height - 60)
