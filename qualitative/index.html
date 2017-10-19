@@ -15,9 +15,22 @@
             
         }
         
-        h1, p {
+        h1 {
+            letter-spacing: 0.25em;
             padding-left: 50px;
-            width: 930px;
+            
+        }
+        
+        p {
+            font-size: 20px;
+            padding-left: 50px;
+            width: 1200px;
+        }
+        
+        select {
+            width: 200px;
+            height: 50px;
+            font-size: 20px;
         }
     </style>
     <script>
@@ -83,12 +96,6 @@
             wordFreqSortable.sort(function(b, a) {
                 return a.count - b.count;
             });
-            
-            console.log(wordFreqSortable);
-            console.log(wordFreq);
-            console.log(ritaText);
-            
-            
         }
         
         function updateContext() {
@@ -98,9 +105,6 @@
                 ignoreStopWords: true,
                 wordCount: 6
             });
-            
-            
-            console.log(kwic);
             
             displayWordFreq();
             
@@ -142,24 +146,17 @@
                 var pos = map(index, 0, wordFreqSortable.length, 80, height - 10);
                 text(element.word, 50, pos);
             });
-            
-            
-            
-
-        
-        
-            
         }
         
 
     </script>
   </head>
   <body>
-     <h1>TERMS USED IN DISCUSSING HUMAN DEVELOPMENT<br><a style="font-style: italic">Frequency and Context</a></h1>
+     <h1>TERMS USED IN DISCUSSING HUMAN DEVELOPMENT<br><a style="font-size: 25px; color: #649632;">FREQUENCY AND CONTEXT</a></h1>
      <p>The UNDP examines Health Inequality, Education Inequality, and Gender Inequality under the umbrella of Human Development.</p>
      <p>In an effort to identify areas of greatest concern, this visualization analyzes the frequency of words found in the UNDP's introductory remarks on the intersection of Income Inequality and inequality in Human Development.</p>
-     <p>Use the slider below to examine the immediate context of the most frequently found words in this section. </p>
+     <p style="color: #649632;">Use the drop-down menu below to examine the immediate context of the most frequently found words in this section. </p>
      <div id='holder'></div>
-     <p style="padding-bottom: 20px;">*Source: UNDP Income Inequality Trends in sub-Saharan Africa, Chapter 11, Section 2.</p>
+     <p style="padding-bottom: 20px;">Source: UNDP Income Inequality Trends in sub-Saharan Africa, Chapter 11, Section 2.</p>
   </body>
 </html>
