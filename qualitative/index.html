@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html style="font-family: sans-serif;">
+  <head>
+    <!--p5js download: https://p5js.org/download/-->
+    <!--Content Delivery Network (CDN): https://cdnjs.com/libraries/p5.js-->
+    <title>Word Frequency</title>
+    <!--p5 core library, minified-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.5.13/p5.min.js" type="text/javascript"></script>
+    <!--p5 interaction with the DOM-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.5.13/addons/p5.dom.min.js" type="text/javascript"></script>
+    <script src="./rita-full.min.js" type="text/javascript"></script>
+    <style>
+        html {
+            background: #f5f5f5;
+            
+        }
+        
+        h1, p {
+            padding-left: 50px;
+            width: 930px;
+        }
+    </style>
+    <script>
+        var dictionary = [];
+        var wordCount;
+        var textX = 100;
+        var textY = 100;
+        var ritaText;
+        var wordFreqSortable = [];
+        var kwic;
+        var data;
+        var joined;
+        var selected;
+        
+        function preload() {
+          data = loadStrings('hdi_inequality.txt');
+        }
+        
+        function setup() {
+            var canvas = createCanvas(windowWidth, windowHeight*1.5);
+            canvas.parent('holder');
+            
+            sel = createSelect();
+        
+            sel.position(300, height/2);
+            
+            
+            findWordFreq();
+            displayWordFreq();
+            
+            wordFreqSortable.forEach(function(word) {
+                sel.option(word.word)
+            });
+            
+            sel.changed(updateContext);
+            
+        }
+        
+        function findWordFreq() {
+            
+            // combine paragraphs into one string
+            joined = data.join('\n');
+            
+            // imbue text with RiTa information
+            ritaText = RiString(joined);
+            
+            // use RiTa to find frequency of each word, ignoring case and stop words
+            var wordFreq = RiTa.concordance(ritaText._text, {ignoreCase: true, ignoreStopWords: true});
+            
+            // discard words that appear less than five times
+            for (word in wordFreq) {
+                if (wordFreq[word] <= 5) {
+                    delete wordFreq[word];
+                }
+            }
+            
+            // create sortable array from RiTa-returned concordance object
+            for (word in wordFreq) {
+                wordFreqSortable.push({word: word, count: wordFreq[word]});
+            }
+            
+            // sort array of word frequencies
+            wordFreqSortable.sort(function(b, a) {
+                return a.count - b.count;
+            });
+            
+            console.log(wordFreqSortable);
+            console.log(wordFreq);
+            console.log(ritaText);
+            
+            
+        }
+        
+        function updateContext() {
+            selected = sel.value();
+            kwic = RiTa.kwic(joined, selected, {
+                ignorePunctuation: true,
+                ignoreStopWords: true,
+                wordCount: 6
+            });
+            
+            
+            console.log(kwic);
+            
+            displayWordFreq();
+            
+            textSize(15);
+            var tw = textWidth(selected) / 2;
+        
+            for (var i = 0; i < kwic.length; i++) {
+              var parts = kwic[i].split(selected);
+              var pos = i * 30 + 80
+              var x = 5 * width / 8,
+                  y = pos;
+                  
+        
+              if (y > height - 20) return;
+        
+              fill(0);
+              textAlign(RIGHT);
+              text(parts[0], x - tw, y);
+        
+              fill(100, 150, 50);
+              textAlign(CENTER);
+              text(selected, x, y);
+        
+              fill(0);
+              textAlign(LEFT);
+              text(parts[1], x + tw, y);
+            }
+        }
+        
+        function displayWordFreq() {
+            background(245);
+            textSize(15);
+            text("MOST FREQUENT WORDS:", 50, 40);
+            // text("APPEARS " + wordFreqSortable[0].count + " TIMES", 100, 40)
+            // text("APPEARS " + wordFreqSortable[wordFreqSortable.length-1].count + " TIMES", 100, height - 60)
+            wordFreqSortable.forEach(function(element, index) {
+                textSize(log(element.count)*10);
+                // textSize(20);
+                var pos = map(index, 0, wordFreqSortable.length, 80, height - 10);
+                text(element.word, 50, pos);
+            });
+            
+            
+            
+
+        
+        
+            
+        }
+        
+
+    </script>
+  </head>
+  <body>
+     <h1>TERMS USED IN DISCUSSING HUMAN DEVELOPMENT<br><a style="font-style: italic">Frequency and Context</a></h1>
+     <p>The UNDP examines Health Inequality, Education Inequality, and Gender Inequality under the umbrella of Human Development.</p>
+     <p>In an effort to identify areas of greatest concern, this visualization analyzes the frequency of words found in the UNDP's introductory remarks on the intersection of Income Inequality and inequality in Human Development.</p>
+     <p>Use the slider below to examine the immediate context of the most frequently found words in this section. </p>
+     <div id='holder'></div>
+     <p style="padding-bottom: 20px;">*Source: UNDP Income Inequality Trends in sub-Saharan Africa, Chapter 11, Section 2.</p>
+  </body>
+</html>

@@ -11,7 +11,7 @@
 
     <script>
         var dictionary = [];
-        var wordCount; 
+        var wordCount;
         var textX = 100;
         
         function setup() {
@@ -21,48 +21,59 @@
         
         function analyze(sotu) {
             // console.log(sotu);
-            sotu.forEach(function(phrases) {
+            
+            sotu.forEach(function(phrases){
                 // console.log(phrases);
                 
+                // remove special characters
+                // RegEx https://regexr.com/
+                // phrases = phrases.replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, ''); // list of special charecters to replace
+                phrases = phrases.replace(/[^\w\s]/gi, '');  // The caret (^) character is the negation of the set [...], gi is global and case-insensitive and the safelist in this example is digits, word characters (\w), and whitespace (\s).
+          
                 var words = phrases.split(' ');
-                // console.log(words);
                 
                 words.forEach(function(word) {
                     // console.log(word);
+                    
+                    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter
                     wordCount = dictionary.filter(function(element) {
                         return element.word == word;
-                    });
+                    })
                     
-                    if (wordCount.length == true) { // note: the "== true" is unnecessary
+                    if (wordCount.length)
                         wordCount[0].count++;
-                    }
-                    else {
+                    else
                         dictionary.push({word: word, count: 1});
-                    }
+                })
+                
+                // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort
+                dictionary.sort(function(a, b) {
+                    return b.count - a.count;
                 });
             });
-        console.log(dictionary);
-        display();
+            
+            console.log(dictionary);
+            display();
         }
         
         function display() {
-             background(255);
-                translate(textX, height/2);
+            background(255);
+            translate(textX, height/2);
             
-                dictionary.forEach(function(element) {
-                    textSize(element.count);
-                    text(element.word, 0, 0);
-                    
-                    var txtWidth = textWidth(element.word);
-                    translate(txtWidth, 0);
-                });
+            dictionary.forEach(function(element) {
+                textSize(element.count * 2);
+                text(element.word, 0, 0);
+                
+                var txtWidth = textWidth(element.word);
+                translate(txtWidth, 0);
+            })
         }
         
         function mouseDragged() {
             textX += mouseX - pmouseX;
             display();
         }
-
+    
     </script>
   </head>
   <body>
