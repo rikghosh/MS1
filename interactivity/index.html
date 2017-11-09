@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="https://d3js.org/d3.v4.min.js"></script>
+        <link href="https://fonts.googleapis.com/css?family=Sanchez" rel="stylesheet">
+        <style>
+            html {
+              background-color: #EEE;
+              font-family: Sanchez;
+                
+            }
+            .tooltip div {
+                margin: 0 5%;
+            }
+            .tooltip {
+              background: rgba(238, 238, 238, 0.8);
+              font-family: Sanchez;
+              color: #000;
+              display: none;
+              font-size: 150px;
+              position: absolute;
+              text-align: center;
+              top: 0%;
+              height: 100%;
+              width: 100%;
+              z-index: 10;
+            }
+            
+            .tooltip2 {
+              background: rgba(0, 0, 0, 0);
+              font-family: Sanchez;
+              color: #000;
+              display: none;
+              font-size: 14px;
+              padding: 10px;
+              position: absolute;
+              text-align: center;
+              z-index: 11;
+            }
+            
+            .title {
+                font-size: 25px;
+                position: relative;
+                left: 50px;
+                top: 20px;
+            }
+            
+            .description {
+                font-size: 20px;
+                position: relative;
+                left: 55px;
+                top: 40px;
+            }
+            
+        </style>
+    </head>
+
+    <body>
+        <div class='title'>WEALTH INEQUALITY AND INCOME LEVEL OF AFRICAN COUNTRIES</div>
+        <div class='description'></div>
+        <div class='d3container'></div>
+        <script>
+            d3.select('.d3container')
+                .append('svg')
+                .attr('width', window.innerWidth)
+                .attr('height', window.innerHeight);
+            
+            var svg = d3.select('svg');
+            
+            var tooltip = d3.select('.d3container')           
+              .append('div')                            
+              .attr('class', 'tooltip')     
+              .on('click', function() {
+                  tooltip.style('display', 'none');
+              });
+            
+            tooltip.append('div')                       
+              .attr('class', 'sentence');                  
+              
+              
+            var tooltip2 = d3.select('.d3container')
+                .append('div')
+                .attr('class', 'tooltip2')
+                .on('click', function() {
+                    tooltip.style('display', 'none');
+                });
+            
+            tooltip2.append('div')
+                    .attr('class', 'info');
+
+            
+            d3.csv('wiid.csv', function(error, data) {
+                
+                if (error) throw error;
+                
+                // subset data to get only most recent data for each country
+                data = data.filter(function(d) {return d.Gini != 0});
+                data = data.filter(function(d) {return d.Region == 'Africa'});
+
+
+                var countries = [];
+                for (var i in data) {
+                    countries.push(data[i].Country)
+                }
+                
+                countries = countries.filter(function(elem, pos) {
+                     return countries.indexOf(elem) == pos;
+                });
+                
+                countries.pop();
+                
+                var filteredData = []
+                
+                for (var i in countries) {
+                    var tmp = data.filter(function(d) {return d.Country == countries[i]});
+                    var years = [];
+                    for (var i in tmp) {
+                        years.push(tmp[i].Year);
+                    }
+                    tmp = tmp.filter(function(d) {return d.Year == d3.max(years)});
+                    tmp = tmp[tmp.length - 1];
+                    filteredData.push(tmp);
+                }
+                
+                console.log(filteredData);
+                
+                // subset data instead by looking only at World Bank data (another option, easier to filter but not as interesting)
+                // var filteredData = data.filter(function(d) {return d.Source == 'World Bank' || d.Source == 'World Bank 2016';});
+                
+                
+                console.log(filteredData);
+                
+                // create array of gini coefficients
+                var ginis = [];
+                for (var i in filteredData) {
+                    ginis.push(filteredData[i].Gini)
+                }
+                
+                
+                var minGini = d3.min(ginis);
+                var maxGini = d3.max(ginis);
+                console.log(minGini);
+                console.log(maxGini);
+                
+            
+                // separate into income groups
+                var low = filteredData.filter(function(d) {return d.Incomegroup == 'Low income';});
+                var lowerMiddle = filteredData.filter(function(d) {return d.Incomegroup == 'Lower middle income';});
+                var upperMiddle = filteredData.filter(function(d) {return d.Incomegroup == 'Upper middle income';});
+                var highOECD = filteredData.filter(function(d) {return d.Incomegroup == 'High income: OECD';});
+                var highNonOECD = filteredData.filter(function(d) {return d.Incomegroup == 'High income: non-OECD';});
+                
+                
+                // create horizontal scale
+                var x = d3.scaleLinear()
+                    .domain([30, 62]) // possible range of gini values
+                    .range([370, window.innerWidth-200]);
+
+                svg.append('text')
+                    .text('GINI = 30')
+                    .attr('x', x(30) - 37)
+                    .attr('y', 125)
+                    .attr('font-family', 'Sanchez')
+                    .attr('font-size', '18px');
+                    
+                svg.append('line')
+                    .attr('x1', x(30))
+                    .attr('x2', x(30))
+                    .attr('y1', 135)
+                    .attr('y2', window.innerHeight - 100)
+                    .attr('stroke-width', 2)
+                    .attr('stroke', 'black');
+                    
+                    
+                svg.append('text')
+                    .text('GINI = 62')
+                    .attr('x', x(62) - 45)
+                    .attr('y', 125)
+                    .attr('font-family', 'Sanchez')
+                    .attr('font-size', '18px');
+                    
+                svg.append('line')
+                    .attr('x1', x(62))
+                    .attr('x2', x(62))
+                    .attr('y1', 135)
+                    .attr('y2', window.innerHeight - 100)
+                    .attr('stroke-width', 2)
+                    .attr('stroke', 'black');   
+                    
+                svg.append('text')
+                    .text('US Gini = 41.0')
+                    .attr('x', x(41) - 60)
+                    .attr('y', 125)
+                    .attr('font-family', 'Sanchez')
+                    .attr('font-size', '18px')
+                    .attr('fill','lightgray');
+                    
+                svg.append('line')
+                    .attr('x1', x(41))
+                    .attr('x2', x(41))
+                    .attr('y1', 135)
+                    .attr('y2', window.innerHeight - 100)
+                    .attr('stroke-width', 2)
+                    .attr('stroke', 'lightgray')
+                    .attr('z-index', '-1000');
+                    
+                var incomeInfo = svg.append('text')
+                    .attr('x', 50)
+                    .attr('font-family', 'Sanchez')
+                    .attr('display', 'none');
+                
+                svg.append('text')
+                    .text('LOW INCOME')
+                    .attr('x', 50)
+                    .attr('y', window.innerHeight/5 + 25)
+                    .attr('font-size', '20px')
+                    .attr('font-family', 'Sanchez')
+                    .attr('fill', 'goldenrod')
+                    .on('mouseover', function() {
+                        incomeInfo.attr('display', 'relative')
+                        incomeInfo.attr('y', window.innerHeight/5 + 65)
+                        incomeInfo.text('2015 GNI per capita < $1,025')
+                        incomeInfo.attr('fill', 'goldenrod');
+                    })
+                    .on('mouseout', function() {
+                        incomeInfo.attr('display', 'none');
+                    });
+                    
+                svg.append('text')
+                    .text('LOWER MIDDLE INCOME')
+                    .attr('x', 50)
+                    .attr('y', 2*window.innerHeight/5 + 25)
+                    .attr('font-size', '20px')
+                    .attr('font-family', 'Sanchez')
+                    .attr('fill', 'olive')
+                    .on('mouseover', function() {
+                        incomeInfo.attr('display', 'relative')
+                        incomeInfo.attr('y', 2*window.innerHeight/5 + 65)
+                        incomeInfo.text('2015 GNI per capita $1,026 - $4,035')
+                        incomeInfo.attr('fill', 'olive');
+                    })
+                    .on('mouseout', function() {
+                        incomeInfo.attr('display', 'none');
+                    });
+                    
+                svg.append('text')
+                    .text('UPPER MIDDLE INCOME')
+                    .attr('x', 50)
+                    .attr('y', 3*window.innerHeight/5 + 25)
+                    .attr('font-size', '20px')
+                    .attr('font-family', 'Sanchez')
+                    .attr('fill', 'maroon')
+                    .on('mouseover', function() {
+                        incomeInfo.attr('display', 'relative')
+                        incomeInfo.attr('y', 3*window.innerHeight/5 + 65)
+                        incomeInfo.text('2015 GNI per capita $4,036 - $12,475')
+                        incomeInfo.attr('fill', 'maroon');
+                    })
+                    .on('mouseout', function() {
+                        incomeInfo.attr('display', 'none');
+                    });
+                    
+                svg.append('text')
+                    .text('HIGH INCOME')
+                    .attr('x', 50)
+                    .attr('y', 4*window.innerHeight/5 + 25)
+                    .attr('font-size', '20px')
+                    .attr('font-family', 'Sanchez')
+                    .attr('fill', 'lightSlateGray')
+                    .on('mouseover', function() {
+                        incomeInfo.attr('display', 'relative')
+                        incomeInfo.attr('y', 4*window.innerHeight/5 + 65)
+                        incomeInfo.text('2015 GNI per capita > $12,476')
+                        incomeInfo.attr('fill', 'lightSlateGray');
+                    })
+                    .on('mouseout', function() {
+                        incomeInfo.attr('display', 'none');
+                    })
+                    
+                svg.selectAll('point1')
+                    .data(low)
+                    .enter()
+                    .append('circle')
+                    .attr('cx', function(d, i) { return x(d.Gini) })
+                    .attr('cy', window.innerHeight/5 + 25)
+                    .attr('r', 5)
+                    .attr('fill', 'goldenrod')
+                    .attr('opacity', '0.5')
+                    .on('mouseover', function(d) {
+                        d3.select(this)
+                            .style('fill', 'white');
+                        tooltip2.select('.info').html(d.Country + ', ' + d.Gini);
+                        tooltip2.style('display', 'block');
+                        tooltip2.style('color', 'goldenrod')
+                            .style("left", (d3.event.pageX - 10) + "px")     
+                            .style("top", (d3.event.pageY - 50) + "px");  
+                    })
+                    .on('mouseout', function() {
+                        d3.select(this)
+                            .style('fill', 'goldenrod');
+                        tooltip2.style('display', 'none');
+                    })
+                    
+                    .on('click', function(d) {
+                        d3.select(this)
+                            .style('fill', 'white');
+                        tooltip.select('.sentence').html('According to ' + d.Source + ', ' + d.Country + ', a low income country, had a Gini of ' + d.Gini + ' in ' + d.Year + '.');
+                        tooltip.style('display', 'block');
+                        tooltip.style('color', 'goldenrod')
+                    });
+                    
+                svg.selectAll('point2')
+                    .data(lowerMiddle)
+                    .enter()
+                    .append('circle')
+                    .attr('cx', function(d, i) { return x(d.Gini) })
+                    .attr('cy', 2*window.innerHeight/5 + 25)
+                    .attr('r', 5)
+                    .attr('fill', 'olive')
+                    .attr('opacity', '0.5')
+                    .on('mouseover', function(d) {
+                        d3.select(this)
+                            .style('fill', 'white');
+                        tooltip2.select('.info').html(d.Country + ', ' + d.Gini);
+                        tooltip2.style('display', 'block');
+                        tooltip2.style('color', 'olive')
+                            .style("left", (d3.event.pageX - 10) + "px")     
+                            .style("top", (d3.event.pageY - 50) + "px");  
+                    })
+                    .on('mouseout', function() {
+                        d3.select(this)
+                            .style('fill', 'olive');
+                        tooltip2.style('display', 'none');
+                    })
+                    
+                    .on('click', function(d) {
+                        d3.select(this)
+                            .style('fill', 'white');
+                        tooltip.select('.sentence').html('According to ' + d.Source + ', ' + d.Country + ', a lower middle income country, had a Gini of ' + d.Gini + ' in ' + d.Year + '.');
+                        tooltip.style('display', 'block');
+                        tooltip.style('color', 'olive')
+                    });
+                    
+                    
+                svg.selectAll('point3')
+                    .data(upperMiddle)
+                    .enter()
+                    .append('circle')
+                    .attr('cx', function(d, i) { return x(d.Gini) })
+                    .attr('cy', 3*window.innerHeight/5 + 25)
+                    .attr('r', 5)
+                    .attr('fill', 'maroon')
+                    .attr('opacity', '0.5')
+                    .on('mouseover', function(d) {
+                        d3.select(this)
+                            .style('fill', 'white');
+                        tooltip2.select('.info').html(d.Country + ', ' + d.Gini);
+                        tooltip2.style('display', 'block');
+                        tooltip2.style('color', 'maroon')
+                            .style("left", (d3.event.pageX - 10) + "px")     
+                            .style("top", (d3.event.pageY - 50) + "px");  
+                    })
+                    .on('mouseout', function() {
+                        d3.select(this)
+                            .style('fill', 'maroon');
+                        tooltip2.style('display', 'none');
+                    })
+                    
+                    .on('click', function(d) {
+                        d3.select(this)
+                            .style('fill', 'white');
+                        tooltip.select('.sentence').html('According to ' + d.Source + ', ' + d.Country + ', an upper middle income country, had a Gini of ' + d.Gini + ' in ' + d.Year + '.');
+                        tooltip.style('display', 'block');
+                        tooltip.style('color', 'maroon')
+                    });
+                    
+                svg.selectAll('point5')
+                    .data(highNonOECD)
+                    .enter()
+                    .append('circle')
+                    .attr('cx', function(d, i) { return x(d.Gini) })
+                    .attr('cy', 4*window.innerHeight/5 + 25)
+                    .attr('r', 5)
+                    .attr('fill', 'lightSlateGray')
+                    .attr('opacity', '0.5')
+                    .on('mouseover', function(d) {
+                        d3.select(this)
+                            .style('fill', 'white');
+                        tooltip2.select('.info').html(d.Country + ', ' + d.Gini);
+                        tooltip2.style('display', 'block');
+                        tooltip2.style('color', 'lightSlateGray')
+                            .style("left", (d3.event.pageX - 10) + "px")     
+                            .style("top", (d3.event.pageY - 50) + "px");  
+                    })
+                    .on('mouseout', function() {
+                        d3.select(this)
+                            .style('fill', 'darkSlateGray');
+                        tooltip2.style('display', 'none');
+                    })
+                    
+                    .on('click', function(d) {
+                        d3.select(this)
+                            .style('fill', 'white');
+                        tooltip.select('.sentence').html('According to ' + d.Source + ', ' + d.Country + ', a high income country, had a Gini of ' + d.Gini + ' in ' + d.Year + '.');
+                        tooltip.style('display', 'block');
+                        tooltip.style('color', 'lightSlateGray')
+                    });
+                
+                
+
+     
+            });
+            
+
+        </script>
+    </body>
+</html>
