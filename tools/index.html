@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="https://d3js.org/d3.v4.min.js"></script>
+        <script src="https://d3plus.org/js/d3plus-text.v0.9.full.min.js"></script>
+        <link href="https://fonts.googleapis.com/css?family='Open Sans'" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css?family=PT+Sans" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300" rel="stylesheet">
+        <style>
+            html {
+              background-color: #EEE;
+              font-family: 'Open Sans';
+                
+            }
+            .tooltip div {
+                margin: 20% 5%;
+            }
+            .tooltip {
+              background: rgba(238, 238, 238, 0.8);
+              font-family: 'Open Sans';
+              color: #000;
+              display: none;
+              font-size: 90px;
+              position: absolute;
+              text-align: center;
+              top: 0;
+              height: 100%;
+              width: 100%;
+              z-index: 10;
+            }
+            
+            .tooltip2 {
+              background: rgba(0, 0, 0, 0);
+              font-family: 'Open Sans';
+              color: #000;
+              display: none;
+              font-size: 14px;
+              padding: 10px;
+              position: absolute;
+              text-align: center;
+              z-index: 11;
+            }
+            
+            .title {
+                font-size: 25px;
+                position: relative;
+                margin-left: 50px;
+                top: 20px;
+                margin-bottom: 25px;
+                text-align: left;
+            }
+            
+            .description {
+                font-size: 20px;
+                position: relative;
+                bottom: 40px;
+                color: #BEBEBE;
+            }
+            
+            .description a {
+                color: #BEBEBE;
+            }
+            
+            select {
+              -webkit-padding-end: 20px;
+              -webkit-padding-start: 2px;
+              -webkit-user-select: none;
+              background-color: rgba(0,0,0,0);
+              background-position: center right;
+              background-repeat: no-repeat;
+              color: #555;
+              font-size: inherit;
+              font-family: 'Open Sans';
+              margin: 0;
+              overflow: hidden;
+              padding-top: 2px;
+              padding-bottom: 2px;
+              text-overflow: ellipsis;
+              white-space: nowrap;
+            }
+            
+        </style>
+    </head>
+
+    <body>
+        <div class='title'>SHIFTS IN EDUCATION, HEALTH, AND INCOME INEQUALITIES: <br> A COMPARISON BETWEEN 2010 AND 2014 FOR <span id="countryname">SUB-SAHARAN AFRICA</span></div>
+        <div class='d3container'></div>
+        <!-- <div class='description'>Confused? See <a href="https://github.com/rikghosh/ms-1/blob/master/interactivity/README.md">README</a>.</div> -->
+        
+        <script>
+            d3.select('.d3container')
+                .append('svg')
+                .attr('width', window.innerWidth)
+                .attr('height', (window.innerHeight - 125));
+            
+            var clickIter = 0; 
+            
+            var svg = d3.select('svg');
+            
+            var ssa = [" Angola", " Benin", " Botswana", " Burkina Faso", " Burundi", " Cabo Verde", " Cameroon", " Central African Republic", " Chad", " Comoros", " Congo", " Democratic Republic of the Congo", " Cote d'Ivoire", " Equatorial Guinea", " Eritrea", " Ethiopia", " Gabon", " Gambia", " Ghana", " Guinea", " Guinea-Bissau", " Kenya", " Lesotho", " Liberia", " Madagascar", " Malawi", " Mali", " Mauritania", " Mauritius", " Mozambique", " Niger", " Nigeria", " Rwanda", " Sao Tome and Principe", " Senegal", " Seychelles", " Sierra Leone", " South Africa", " South Sudan", " Swaziland", " United Republic of Tanzania", " Togo", " Uganda", " Zambia", " Zimbabwe"];
+            
+            console.log(ssa.length)
+            
+            var tooltip = d3.select('.d3container')           
+              .append('div')                            
+              .attr('class', 'tooltip')     
+              .on('click', function() {
+                  tooltip.style('display', 'none');
+              });
+            
+            tooltip.append('div')                       
+              .attr('class', 'sentence');                  
+              
+              
+            var tooltip2 = d3.select('.d3container')
+                .append('div')
+                .attr('class', 'tooltip2')
+                .on('click', function() {
+                    tooltip.style('display', 'none');
+                });
+            
+            tooltip2.append('div')
+                    .attr('class', 'info');
+
+            
+            d3.csv('education.csv', function(error1, educationData) {
+                if (error1) throw error1;
+                d3.csv('health.csv', function(error2, healthData) {
+                    if (error2) throw error2;
+                    d3.csv('income.csv', function(error3, incomeData) {
+                        if (error3) throw error3;
+                        educationData = educationData.filter(function(d) { return ssa.indexOf(d.Country) > -1 && d['2010'] != "" && d['2014'] != "" });
+                        healthData = healthData.filter(function(d) {return ssa.indexOf(d.Country) > -1 && d['2010'] != "" && d['2014'] != "" });
+                        incomeData = incomeData.filter(function(d) {return ssa.indexOf(d.Country) > -1 && d['2010'] != "" && d['2014'] != "" });
+
+                        console.log(educationData);
+                        console.log(healthData);
+                        console.log(incomeData);
+                        
+                        // create horizontal scale
+                        var x = d3.scaleLinear()
+                            .domain([6, 60]) // possible range of values
+                            .range([350, window.innerWidth-200]);
+                            
+                        svg.append('text')
+                            .text('EDUCATION')
+                            .attr('x', 50)
+                            .attr('y', (window.innerHeight - 125)/6)
+                            .attr('font-size', '20px')
+                            .attr('font-family', 'Open Sans')
+                            .on('mouseover', function() {
+                                decreasing.attr('display', 'none');
+                                eduExp.attr('display', 'inline');
+                            })
+                            .on('mouseout', function() {
+                                decreasing.attr('display', 'inline');
+                                eduExp.attr('display', 'none');
+                            })
+                            
+                        var eduExp = svg.append('text')
+                            .text('THE ATKINSON INEQUALITY INDEX DETERMINED FOR EACH COUNTRY BY ITS DISTRIBUTION OF YEARS OF SCHOOLING')
+                            .attr('x', x(30))
+                            .attr('y', 2*(window.innerHeight - 125)/6 - 2.5)
+                            .attr('font-size', '14px')
+                            .attr('font-family', 'Open Sans')
+                            .attr('text-anchor', 'middle')
+                            .attr('display', 'none')
+                            
+                        svg.append('text')
+                            .text('HEALTH')
+                            .attr('x', 50)
+                            .attr('y', (window.innerHeight - 125)/2)
+                            .attr('font-size', '20px')
+                            .attr('font-family', 'Open Sans')
+                            .on('mouseover', function() {
+                                decreasing.attr('display', 'none');
+                                healthExp.attr('display', 'inline');
+                            })
+                            .on('mouseout', function() {
+                                decreasing.attr('display', 'inline');
+                                healthExp.attr('display', 'none');
+                            })
+                            
+                        var healthExp = svg.append('text')
+                            .text('THE ATKINSON INEQUALITY INDEX DETERMINED FOR EACH COUNTRY BY ITS DISTRIBUTION OF EXPECTED LENGTH OF LIFE')
+                            .attr('x', x(30))
+                            .attr('y', 2*(window.innerHeight - 125)/6 - 2.5)
+                            .attr('font-size', '14px')
+                            .attr('font-family', 'Open Sans')
+                            .attr('text-anchor', 'middle')
+                            .attr('display', 'none')
+                            
+                        svg.append('text')
+                            .text('INCOME')
+                            .attr('x', 50)
+                            .attr('y', 5*(window.innerHeight - 125)/6)
+                            .attr('font-size', '20px')
+                            .attr('font-family', 'Open Sans')
+                            .on('mouseover', function() {
+                                decreasing.attr('display', 'none');
+                                incExp.attr('display', 'inline');
+                            })
+                            .on('mouseout', function() {
+                                decreasing.attr('display', 'inline');
+                                incExp.attr('display', 'none');
+                            })
+                        
+                        var incExp = svg.append('text')
+                            .text('THE ATKINSON INEQUALITY INDEX DETERMINED FOR EACH COUNTRY BY ITS DISTRIBUTION OF INCOME')
+                            .attr('x', x(30))
+                            .attr('y', 2*(window.innerHeight - 125)/6 - 2.5)
+                            .attr('font-size', '14px')
+                            .attr('font-family', 'Open Sans')
+                            .attr('text-anchor', 'middle')
+                            .attr('display', 'none')
+                        
+                        for (var i=1; i<7; i+=2) { 
+                        svg.append('text')
+                            .text('6%')
+                            .attr('x', x(6))
+                            .attr('y', i*(window.innerHeight - 125)/6 - 2.5)
+                            .attr('font-size', '15px')
+                            .attr('font-family', 'Open Sans');
+                            
+                         svg.append('text')
+                            .text('60%')
+                            .attr('x', x(60) - 29)
+                            .attr('y', i*(window.innerHeight - 125)/6 - 2.5)
+                            .attr('font-size', '15px')
+                            .attr('font-family', 'Open Sans');
+                        }
+                        
+                        var decreasing = svg.append('text')
+                            .text('<----------- DECREASING INEQUALITY (IMPROVEMENT)')
+                            .attr('x', x(30))
+                            .attr('y', 2*(window.innerHeight - 125)/6 - 2.5)
+                            .attr('font-size', '14px')
+                            .attr('font-family', 'Open Sans')
+                            .attr('text-anchor', 'middle');
+                        
+                        var increasing = svg.append('text')
+                            .text('INCREASING INEQUALITY (DETERIORATION) ----------->')
+                            .attr('x', x(30))
+                            .attr('y', 4*(window.innerHeight - 125)/6 - 2.5)
+                            .attr('font-size', '14px')
+                            .attr('font-family', 'Open Sans')
+                            .attr('text-anchor', 'middle');
+                            
+                        for (var i=1; i<7; i+=2) {    
+                            svg.append('text')
+                                .text('2010')
+                                .attr('x', 225)
+                                .attr('y', i*(window.innerHeight - 125)/6 - 50)
+                                .attr('font-size', '14px')
+                                .attr('font-family', 'Open Sans');
+                                
+                            svg.append('text')
+                                .text('2014')
+                                .attr('x', 225)
+                                .attr('y', i*(window.innerHeight - 125)/6 + 44)
+                                .attr('font-size', '14px')
+                                .attr('font-family', 'Open Sans');
+                        }
+                        
+                        
+                        svg.selectAll('point1a')
+                            .data(educationData)
+                            .enter()
+                            .append('circle')
+                            .attr('class', function(d,i) { return d.Country.slice(1).replace(/\s+/g, '').replace(/'/g, '') })
+                            .attr('cx', function(d, i) { return x(d["2010"]) })
+                            .attr('cy', (window.innerHeight - 125)/6 - 57)
+                            .attr('r', 5)
+                            .attr('fill', 'goldenrod')
+                            .attr('opacity', '0.5')
+                            
+                        svg.selectAll('selector1a')
+                            .data(educationData)
+                            .enter()
+                            .append('ellipse')
+                            .attr('class', function(d,i) { return d.Country.slice(1).replace(/\s+/g, '').replace(/'/g, '') })
+                            .attr('cx', function(d, i) { return x(d["2010"]) })
+                            .attr('cy', (window.innerHeight - 125)/6 - 57)
+                            .attr('rx', 5)
+                            .attr('ry', 20)
+                            .attr('opacity', '0')
+                            .on('mouseover', function(d) {
+                                tooltip2.select('.info').html(d.Country + ', ' + d[2010]);
+                                tooltip2.style('display', 'block');
+                                tooltip2.style('color', 'black')
+                                    .style("left", (d3.event.pageX - 10) + "px")     
+                                    .style("top", (d3.event.pageY - 50) + "px");
+                                d3.selectAll('.' + d.Country.slice(1).replace(/\s+/g, '').replace(/'/g, ''))
+                                    .style('stroke-width', '2.5')
+                                    .style('stroke', 'black');
+                                d3.select('#countryname').style('display', 'none')
+                                d3.select('.title')
+                                    .append("span")
+                                    .attr('id', 'curCount')
+                                    .style('color', 'goldenrod')
+                                    .html(d.Country.toUpperCase())
+
+                            })
+                            .on('mouseout', function(d) {
+                                d3.select(this)
+                                    .style('stroke-width', '0');
+                                tooltip2.style('display', 'none');
+                                d3.selectAll('.' + d.Country.slice(1).replace(/\s+/g, '').replace(/'/g, ''))
+                                    .style('stroke-width', '0');
+                                d3.selectAll('#connection')
+                                    .style('stroke-width', '1')
+                                    .style('stroke', 'gray');
+                                d3.select('#curCount').remove()
+                                d3.select('#countryname').style('display', 'inline')
+                            })
+                            .on('click', function(d) {
+                                d3.select(this)
+                                tooltip.select('.sentence').html(d.Country + ' went from an education inequality of  ' + d['2010'] + ' in 2010 to   ' + d['2014'] + ' in 2014.');
+                                tooltip.style('display', 'block');
+                                tooltip.style('color', 'goldenrod')
+                            });
+                                    
+                        svg.selectAll('point1b')
+                            .data(educationData)
+                            .enter()
+                            .append('circle')
+                            .attr('class', function(d,i) { return d.Country.slice(1).replace(/\s+/g, '').replace(/'/g, '') })
+                            .attr('cx', function(d, i) { return x(d["2014"]) })
+                            .attr('cy', (window.innerHeight - 125)/6 + 37)
+                            .attr('r', 5)
+                            .attr('fill', 'goldenrod')
+                            .attr('opacity', '0.5')
+                            
+                        svg.selectAll('selector1b')
+                            .data(educationData)
+                            .enter()
+                            .append('ellipse')
+                            .attr('class', function(d,i) { return d.Country.slice(1).replace(/\s+/g, '').replace(/'/g, '') })
+                            .attr('cx', function(d, i) { return x(d["2014"]) })
+                            .attr('cy', (window.innerHeight - 125)/6 + 37)
+                            .attr('rx', 5)
+                            .attr('ry', 20)
+                            .attr('opacity', '0')
+                            .on('mouseover', function(d) {
+                                d3.select(this)
+                                    .style('stroke-width', '2.5')
+                                    .style('stroke', 'black');
+                                tooltip2.select('.info').html(d.Country + ', ' + d[2014]);
+                                tooltip2.style('display', 'block');
+                                tooltip2.style('color', 'black')
+                                    .style("left", (d3.event.pageX - 10) + "px")     
+                                    .style("top", (d3.event.pageY + 10) + "px"); 
+                                d3.selectAll('.' + d.Country.slice(1).replace(/\s+/g, '').replace(/'/g, ''))
+                                    .style('stroke-width', '2.5')
+                                    .style('stroke', 'black');
+                                d3.select('#countryname').style('display', 'none')
+                                d3.select('.title')
+                                    .append("span")
+                                    .attr('id', 'curCount')
+                                    .style('color', 'goldenrod')
+                                    .html(d.Country.toUpperCase());
+                            })
+                            .on('mouseout', function(d) {
+                                d3.select(this)
+                                    .style('stroke-width', '0');
+                                tooltip2.style('display', 'none');
+                                d3.selectAll('.' + d.Country.slice(1).replace(/\s+/g, '').replace(/'/g, ''))
+                                    .style('stroke-width', '0');
+                                d3.selectAll('#connection')
+                                    .style('stroke-width', '1')
+                                    .style('stroke', 'gray');
+                                d3.select('#curCount').remove()
+                                d3.select('#countryname').style('display', 'inline')
+                            })
+                            .on('click', function(d) {
+                                d3.select(this)
+                                tooltip.select('.sentence').html(d.Country + ' went from an education inequality of  ' + d['2010'] + ' in 2010 to   ' + d['2014'] + ' in 2014.');
+                                tooltip.style('display', 'block');
+                                tooltip.style('color', 'goldenrod')
+                            });
+                        
+                        svg.selectAll('connection1')
+                            .data(educationData)
+                            .enter()
+                            .append('line')
+                            .attr('id', 'connection')
+                            .attr('class', function(d,i) { return d.Country.slice(1).replace(/\s+/g, '').replace(/'/g, '') })
+                            .attr('x1', function(d, i) { return x(d["2010"]) })
+                            .attr('y1', (window.innerHeight - 125)/6 - 57)
+                            .attr('x2', function(d, i) { return x(d["2014"]) })
+                            .attr('y2', (window.innerHeight - 125)/6 + 37)
+                            .attr('stroke-width', 1)
+                            .attr('stroke', 'gray')
+                            .attr('opacity', '0.75')
+                            .style('stroke-dasharray', ('3', '3'));
+                            
+                            
+                            
+                        svg.selectAll('point2a')
+                            .data(healthData)
+                            .enter()
+                            .append('circle')
+                            .attr('class', function(d,i) { return d.Country.slice(1).replace(/\s+/g, '').replace(/'/g, '') })
+                            .attr('cx', function(d, i) { return x(d["2010"]) })
+                            .attr('cy', (window.innerHeight - 125)/2 - 57)
+                            .attr('r', 5)
+                            .attr('fill', 'goldenrod')
+                            .attr('opacity', '0.5')
+                            
+                        svg.selectAll('selector2a')
+                            .data(healthData)
+                            .enter()
+                            .append('ellipse')
+                            .attr('class', function(d,i) { return d.Country.slice(1).replace(/\s+/g, '').replace(/'/g, '') })
+                            .attr('cx', function(d, i) { return x(d["2010"]) })
+                            .attr('cy', (window.innerHeight - 125)/2 - 57)
+                            .attr('rx', 5)
+                            .attr('ry', 20)
+                            .attr('fill', 'goldenrod')
+                            .attr('opacity', '0')
+                            .on('mouseover', function(d) {
+                                tooltip2.select('.info').html(d.Country + ', ' + d[2010]);
+                                tooltip2.style('display', 'block');
+                                tooltip2.style('color', 'black')
+                                    .style("left", (d3.event.pageX - 10) + "px")     
+                                    .style("top", (d3.event.pageY - 50) + "px");
+                                d3.selectAll('.' + d.Country.slice(1).replace(/\s+/g, '').replace(/'/g, ''))
+                                    .style('stroke-width', '2.5')
+                                    .style('stroke', 'black');
+                                d3.select('#countryname').style('display', 'none')
+                                d3.select('.title')
+                                    .append("span")
+                                    .attr('id', 'curCount')
+                                    .style('color', 'goldenrod')
+                                    .html(d.Country.toUpperCase())
+                            })
+                            .on('mouseout', function(d) {
+
+                                tooltip2.style('display', 'none');
+                                d3.selectAll('.' + d.Country.slice(1).replace(/\s+/g, '').replace(/'/g, ''))
+                                    .style('stroke-width', '0');
+                                d3.selectAll('#connection')
+                                    .style('stroke-width', '1')
+                                    .style('stroke', 'gray');
+                                d3.select('#curCount').remove()
+                                d3.select('#countryname').style('display', 'inline')
+                            })
+                            .on('click', function(d) {
+                                tooltip.select('.sentence').html(d.Country + ' went from a health inequality of  ' + d['2010'] + ' in 2010 to   ' + d['2014'] + ' in 2014.');
+                                tooltip.style('display', 'block');
+                                tooltip.style('color', 'goldenrod')
+                            });
+                                    
+                                    
+                        svg.selectAll('point2b')
+                            .data(healthData)
+                            .enter()
+                            .append('circle')
+                            .attr('class', function(d,i) { return d.Country.slice(1).replace(/\s+/g, '').replace(/'/g, '') })
+                            .attr('cx', function(d, i) { return x(d["2014"]) })
+                            .attr('cy', (window.innerHeight - 125)/2 + 37)
+                            .attr('r', 5)
+                            .attr('fill', 'goldenrod')
+                            .attr('opacity', '0.5')
+                            
+                        svg.selectAll('selector2b')
+                            .data(healthData)
+                            .enter()
+                            .append('ellipse')
+                            .attr('class', function(d,i) { return d.Country.slice(1).replace(/\s+/g, '').replace(/'/g, '') })
+                            .attr('cx', function(d, i) { return x(d["2014"]) })
+                            .attr('cy', (window.innerHeight - 125)/2 + 37)
+                            .attr('rx', 5)
+                            .attr('ry', 20)
+                            .attr('opacity', '0')
+                            .on('mouseover', function(d) {
+                                tooltip2.select('.info').html(d.Country + ', ' + d[2014]);
+                                tooltip2.style('display', 'block');
+                                tooltip2.style('color', 'black')
+                                    .style("left", (d3.event.pageX - 10) + "px")     
+                                    .style("top", (d3.event.pageY + 10) + "px");  
+                                d3.selectAll('.' + d.Country.slice(1).replace(/\s+/g, '').replace(/'/g, ''))
+                                    .style('stroke-width', '2.5')
+                                    .style('stroke', 'black');
+                                d3.select('#countryname').style('display', 'none')
+                                d3.select('.title')
+                                    .append("span")
+                                    .attr('id', 'curCount')
+                                    .style('color', 'goldenrod')
+                                    .html(d.Country.toUpperCase());
+                            })
+                            .on('mouseout', function(d) {
+
+                                tooltip2.style('display', 'none');
+                                d3.selectAll('.' + d.Country.slice(1).replace(/\s+/g, '').replace(/'/g, ''))
+                                    .style('stroke-width', '0');
+                                d3.selectAll('#connection')
+                                    .style('stroke-width', '1')
+                                    .style('stroke', 'gray');
+                                d3.select('#curCount').remove()
+                                d3.select('#countryname').style('display', 'inline')
+                            })
+                            .on('click', function(d) {
+                                d3.select(this)
+                                    .style('fill', 'white');
+                                tooltip.select('.sentence').html(d.Country + ' went from a health inequality of  ' + d['2010'] + ' in 2010 to   ' + d['2014'] + ' in 2014.');
+                                tooltip.style('display', 'block');
+                                tooltip.style('color', 'goldenrod')
+                            });
+                        
+                        svg.selectAll('connection2')
+                            .data(healthData)
+                            .enter()
+                            .append('line')
+                            .attr('id', 'connection')
+                            .attr('class', function(d,i) { return d.Country.slice(1).replace(/\s+/g, '').replace(/'/g, '') })
+                            .attr('x1', function(d, i) { return x(d["2010"]) })
+                            .attr('y1', (window.innerHeight - 125)/2 - 57)
+                            .attr('x2', function(d, i) { return x(d["2014"]) })
+                            .attr('y2', (window.innerHeight - 125)/2 + 37)
+                            .attr('stroke-width', 1)
+                            .attr('stroke', 'gray')
+                            .attr('opacity', '0.75')
+                            .style('stroke-dasharray', ('3', '3'));
+                            
+                            
+                            
+                        svg.selectAll('point3a')
+                            .data(incomeData)
+                            .enter()
+                            .append('circle')
+                            .attr('class', function(d,i) { return d.Country.slice(1).replace(/\s+/g, '').replace(/'/g, '') })
+                            .attr('cx', function(d, i) { return x(d["2010"]) })
+                            .attr('cy', 5*(window.innerHeight - 125)/6 - 57)
+                            .attr('r', 5)
+                            .attr('fill', 'goldenrod')
+                            .attr('opacity', '0.5')
+                            
+                        svg.selectAll('selector3a')
+                            .data(incomeData)
+                            .enter()
+                            .append('ellipse')
+                            .attr('class', function(d,i) { return d.Country.slice(1).replace(/\s+/g, '').replace(/'/g, '') })
+                            .attr('cx', function(d, i) { return x(d["2010"]) })
+                            .attr('cy', 5*(window.innerHeight - 125)/6 - 57)
+                            .attr('rx', 5)
+                            .attr('ry', 20)
+                            .attr('opacity', '0')
+                            .on('mouseover', function(d) {
+                                tooltip2.select('.info').html(d.Country + ', ' + d[2010]);
+                                tooltip2.style('display', 'block');
+                                tooltip2.style('color', 'black')
+                                    .style("left", (d3.event.pageX - 10) + "px")     
+                                    .style("top", (d3.event.pageY - 50) + "px");  
+                                d3.selectAll('.' + d.Country.slice(1).replace(/\s+/g, '').replace(/'/g, ''))
+                                    .style('stroke-width', '2.5')
+                                    .style('stroke', 'black');
+                                d3.select('#countryname').style('display', 'none')
+                                d3.select('.title')
+                                    .append("span")
+                                    .attr('id', 'curCount')
+                                    .style('color', 'goldenrod')
+                                    .html(d.Country.toUpperCase());
+                            })
+                            .on('mouseout', function(d) {
+
+                                tooltip2.style('display', 'none');
+                                d3.selectAll('.' + d.Country.slice(1).replace(/\s+/g, '').replace(/'/g, ''))
+                                    .style('stroke-width', '0');
+                                d3.selectAll('#connection')
+                                    .style('stroke-width', '1')
+                                    .style('stroke', 'gray');
+                                d3.select('#curCount').remove()
+                                d3.select('#countryname').style('display', 'inline')
+                            })
+                            .on('click', function(d) {
+                                d3.select(this)
+                                    .style('fill', 'white');
+                                tooltip.select('.sentence').html(d.Country + ' went from an income inequality of  ' + d['2010'] + ' in 2010 to   ' + d['2014'] + ' in 2014.');
+                                tooltip.style('display', 'block');
+                                tooltip.style('color', 'goldenrod')
+                            });
+                            
+                            
+                        svg.selectAll('point3b')
+                            .data(incomeData)
+                            .enter()
+                            .append('circle')
+                            .attr('class', function(d,i) { return d.Country.slice(1).replace(/\s+/g, '').replace(/'/g, '') })
+                            .attr('cx', function(d, i) { return x(d["2014"]) })
+                            .attr('cy', 5*(window.innerHeight - 125)/6 + 37)
+                            .attr('r', 5)
+                            .attr('fill', 'goldenrod')
+                            .attr('opacity', '0.5')
+                                    
+                        svg.selectAll('selector3b')
+                            .data(incomeData)
+                            .enter()
+                            .append('ellipse')
+                            .attr('class', function(d,i) { return d.Country.slice(1).replace(/\s+/g, '').replace(/'/g, '') })
+                            .attr('cx', function(d, i) { return x(d["2014"]) })
+                            .attr('cy', 5*(window.innerHeight - 125)/6 + 37)
+                            .attr('rx', 5)
+                            .attr('ry', 20)
+                            .attr('opacity', '0')
+                            .on('mouseover', function(d) {
+                                tooltip2.select('.info').html(d.Country + ', ' + d[2014]);
+                                tooltip2.style('display', 'block');
+                                tooltip2.style('color', 'black')
+                                    .style("left", (d3.event.pageX - 10) + "px")     
+                                    .style("top", (d3.event.pageY + 10) + "px");  
+                                d3.selectAll('.' + d.Country.slice(1).replace(/\s+/g, '').replace(/'/g, ''))
+                                    .style('stroke-width', '2.5')
+                                    .style('stroke', 'black');
+                                d3.select('#countryname').style('display', 'none')
+                                d3.select('.title')
+                                    .append("span")
+                                    .attr('id', 'curCount')
+                                    .style('color', 'goldenrod')
+                                    .html(d.Country.toUpperCase())
+                            })
+                            .on('mouseout', function(d) {
+
+                                tooltip2.style('display', 'none');
+                                d3.selectAll('.' + d.Country.slice(1).replace(/\s+/g, '').replace(/'/g, ''))
+                                    .style('stroke-width', '0');
+                                d3.selectAll('#connection')
+                                    .style('stroke-width', '1')
+                                    .style('stroke', 'gray');
+                                d3.select('#curCount').remove()
+                                d3.select('#countryname').style('display', 'inline')
+                            })
+                            .on('click', function(d) {
+                                d3.select(this)
+                                    .style('fill', 'white');
+                                tooltip.select('.sentence').html(d.Country + ' went from an income inequality of  ' + d['2010'] + ' in 2010 to   ' + d['2014'] + ' in 2014.');
+                                tooltip.style('display', 'block');
+                                tooltip.style('color', 'goldenrod')
+                            });
+                        
+
+
+                        svg.selectAll('connection3')
+                            .data(incomeData)
+                            .enter()
+                            .append('line')
+                            .attr('id', 'connection')
+                            .attr('class', function(d,i) { return d.Country.slice(1).replace(/\s+/g, '').replace(/'/g, '') })
+                            .attr('x1', function(d, i) { return x(d["2010"]) })
+                            .attr('y1', 5*(window.innerHeight - 125)/6 - 57)
+                            .attr('x2', function(d, i) { return x(d["2014"]) })
+                            .attr('y2', 5*(window.innerHeight - 125)/6 + 37)
+                            .attr('stroke-width', 1)
+                            .attr('stroke', 'gray')
+                            .attr('opacity', '0.75')
+                            .style('stroke-dasharray', ('3', '3'));
+                            
+
+                        for (var i=1; i<7; i+=2) {
+                            svg.append('line')
+                                .attr('x1', x(6))
+                                .attr('x2', x(60))
+                                .attr('y1', i*(window.innerHeight - 125)/6 - 57)
+                                .attr('y2', i*(window.innerHeight - 125)/6 - 57)
+                                .attr('stroke-width', 1)
+                                .attr('stroke', 'gray')
+                                .attr('opacity', '0.5');
+                                
+                            svg.append('line')
+                                .attr('x1', x(6))
+                                .attr('x2', x(60))
+                                .attr('y1', i*(window.innerHeight - 125)/6 + 37)
+                                .attr('y2', i*(window.innerHeight - 125)/6 + 37)
+                                .attr('stroke-width', 1)
+                                .attr('stroke', 'gray')
+                                .attr('opacity', '0.5');
+                        }
+                            
+                        
+                    })
+                })
+            });
+            
+
+        </script>
+    </body>
+</html>
