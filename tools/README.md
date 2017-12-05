@@ -1,4 +1,4 @@
- ## Comparing Changes in Health, Education, and Income Inequality in Sub-Saharan Africa
+ ## Changes in Health, Education, and Income Inequality in Sub-Saharan Africa
  
  ### Preview
 
