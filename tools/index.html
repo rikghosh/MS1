@@ -41,15 +41,26 @@
               z-index: 11;
             }
             
-            .title {
+            .title1 {
                 font-size: 25px;
                 position: relative;
                 margin-left: 50px;
                 top: 20px;
                 margin-bottom: 25px;
                 text-align: left;
+                float: left;
+                
             }
-            
+            .title2 {
+                font-size: 25px;
+                position: relative;
+                margin-left: 10px;
+                top: 20px;
+                margin-bottom: 25px;
+                text-align: left;
+                float: left;
+                
+            }
             .description {
                 font-size: 20px;
                 position: relative;
@@ -62,28 +73,34 @@
             }
             
             select {
-              -webkit-padding-end: 20px;
-              -webkit-padding-start: 2px;
-              -webkit-user-select: none;
+              -webkit-appearance: none;
+              -moz-appearance: none;
               background-color: rgba(0,0,0,0);
               background-position: center right;
               background-repeat: no-repeat;
-              color: #555;
-              font-size: inherit;
+              color: olive;
+              font-size: 50px;
               font-family: 'Open Sans';
-              margin: 0;
               overflow: hidden;
+              border: 0;
+              margin-left: 50px;
               padding-top: 2px;
               padding-bottom: 2px;
               text-overflow: ellipsis;
               white-space: nowrap;
             }
             
+            select::-ms-expand {
+              display: none;
+            }
+            
         </style>
     </head>
 
     <body>
-        <div class='title'>SHIFTS IN EDUCATION, HEALTH, AND INCOME INEQUALITIES: <br> A COMPARISON BETWEEN 2010 AND 2014 FOR <span id="countryname">SUB-SAHARAN AFRICA</span></div>
+        <div class='title1'>SHIFTS IN EDUCATION, HEALTH, AND INCOME INEQUALITIES:</div>
+        <div class='title2'>A COMPARISON BETWEEN 2010 AND 2014 FOR</div>
+        <div class='selectcontainer'></div>
         <div class='d3container'></div>
         <!-- <div class='description'>Confused? See <a href="https://github.com/rikghosh/ms-1/blob/master/interactivity/README.md">README</a>.</div> -->
         
@@ -91,13 +108,13 @@
             d3.select('.d3container')
                 .append('svg')
                 .attr('width', window.innerWidth)
-                .attr('height', (window.innerHeight - 125));
+                .attr('height', (window.innerHeight - 200));
             
             var clickIter = 0; 
             
             var svg = d3.select('svg');
             
-            var ssa = [" Angola", " Benin", " Botswana", " Burkina Faso", " Burundi", " Cabo Verde", " Cameroon", " Central African Republic", " Chad", " Comoros", " Congo", " Democratic Republic of the Congo", " Cote d'Ivoire", " Equatorial Guinea", " Eritrea", " Ethiopia", " Gabon", " Gambia", " Ghana", " Guinea", " Guinea-Bissau", " Kenya", " Lesotho", " Liberia", " Madagascar", " Malawi", " Mali", " Mauritania", " Mauritius", " Mozambique", " Niger", " Nigeria", " Rwanda", " Sao Tome and Principe", " Senegal", " Seychelles", " Sierra Leone", " South Africa", " South Sudan", " Swaziland", " United Republic of Tanzania", " Togo", " Uganda", " Zambia", " Zimbabwe"];
+            var ssa = [" Sub-Saharan Africa", " Angola", " Benin", " Botswana", " Burkina Faso", " Burundi", " Cabo Verde", " Cameroon", " Central African Republic", " Chad", " Comoros", " Congo", " Democratic Republic of the Congo", " Cote d'Ivoire", " Equatorial Guinea", " Eritrea", " Ethiopia", " Gabon", " Gambia", " Ghana", " Guinea", " Guinea-Bissau", " Kenya", " Lesotho", " Liberia", " Madagascar", " Malawi", " Mali", " Mauritania", " Mauritius", " Mozambique", " Niger", " Nigeria", " Rwanda", " Sao Tome and Principe", " Senegal", " Seychelles", " Sierra Leone", " South Africa", " South Sudan", " Swaziland", " United Republic of Tanzania", " Togo", " Uganda", " Zambia", " Zimbabwe"];
             
             console.log(ssa.length)
             
@@ -121,6 +138,40 @@
             
             tooltip2.append('div')
                     .attr('class', 'info');
+                    
+            
+            var select = d3.select('.selectcontainer')
+              .append('select')
+              	.attr('class','select')
+                .on('change', onchange)
+            
+            var options = select
+              .selectAll('option')
+            	.data(ssa)
+            	.enter()
+            	.append('option')
+            		.text(function (d) { return d; });
+            
+            function onchange() {
+            	selectValue = d3.select('select').property('value')
+                d3.selectAll('circle')
+                    .style('stroke-width', '0');
+                d3.selectAll('#connection')
+                    .style('stroke-width', '1')
+                    .style('stroke', 'gray');
+                d3.selectAll('.label')
+                    .attr('font-size', '0px');
+                d3.select('#curCount').remove()
+                // d3.select('#countryname').style('display', 'inline')
+                                
+                d3.selectAll('.' + selectValue.replace(/\s+/g, '').replace(/'/g, ''))
+                    .style('stroke', 'black')
+                    .style('stroke-width', '2.5');
+                d3.selectAll('#' + selectValue.replace(/\s+/g, '').replace(/'/g, ''))
+                    .attr('font-size', '14px');
+                console.log(selectValue.replace(/\s+/g, '').replace(/'/g, ''))
+
+            };
 
             
             d3.csv('education.csv', function(error1, educationData) {
@@ -132,6 +183,8 @@
                         educationData = educationData.filter(function(d) { return ssa.indexOf(d.Country) > -1 && d['2010'] != "" && d['2014'] != "" });
                         healthData = healthData.filter(function(d) {return ssa.indexOf(d.Country) > -1 && d['2010'] != "" && d['2014'] != "" });
                         incomeData = incomeData.filter(function(d) {return ssa.indexOf(d.Country) > -1 && d['2010'] != "" && d['2014'] != "" });
+                        
+                        // educationData = educationData.forEach(function(d) { })
 
                         console.log(educationData);
                         console.log(healthData);
@@ -145,7 +198,7 @@
                         svg.append('text')
                             .text('EDUCATION')
                             .attr('x', 50)
-                            .attr('y', (window.innerHeight - 125)/6)
+                            .attr('y', (window.innerHeight - 200)/6)
                             .attr('font-size', '20px')
                             .attr('font-family', 'Open Sans')
                             .on('mouseover', function() {
@@ -160,7 +213,7 @@
                         var eduExp = svg.append('text')
                             .text('THE ATKINSON INEQUALITY INDEX DETERMINED FOR EACH COUNTRY BY ITS DISTRIBUTION OF YEARS OF SCHOOLING')
                             .attr('x', x(30))
-                            .attr('y', 2*(window.innerHeight - 125)/6 - 2.5)
+                            .attr('y', 2*(window.innerHeight - 200)/6 - 2.5)
                             .attr('font-size', '14px')
                             .attr('font-family', 'Open Sans')
                             .attr('text-anchor', 'middle')
@@ -169,7 +222,7 @@
                         svg.append('text')
                             .text('HEALTH')
                             .attr('x', 50)
-                            .attr('y', (window.innerHeight - 125)/2)
+                            .attr('y', (window.innerHeight - 200)/2)
                             .attr('font-size', '20px')
                             .attr('font-family', 'Open Sans')
                             .on('mouseover', function() {
@@ -184,7 +237,7 @@
                         var healthExp = svg.append('text')
                             .text('THE ATKINSON INEQUALITY INDEX DETERMINED FOR EACH COUNTRY BY ITS DISTRIBUTION OF EXPECTED LENGTH OF LIFE')
                             .attr('x', x(30))
-                            .attr('y', 2*(window.innerHeight - 125)/6 - 2.5)
+                            .attr('y', 2*(window.innerHeight - 200)/6 - 2.5)
                             .attr('font-size', '14px')
                             .attr('font-family', 'Open Sans')
                             .attr('text-anchor', 'middle')
@@ -193,7 +246,7 @@
                         svg.append('text')
                             .text('INCOME')
                             .attr('x', 50)
-                            .attr('y', 5*(window.innerHeight - 125)/6)
+                            .attr('y', 5*(window.innerHeight - 200)/6)
                             .attr('font-size', '20px')
                             .attr('font-family', 'Open Sans')
                             .on('mouseover', function() {
@@ -208,7 +261,7 @@
                         var incExp = svg.append('text')
                             .text('THE ATKINSON INEQUALITY INDEX DETERMINED FOR EACH COUNTRY BY ITS DISTRIBUTION OF INCOME')
                             .attr('x', x(30))
-                            .attr('y', 2*(window.innerHeight - 125)/6 - 2.5)
+                            .attr('y', 2*(window.innerHeight - 200)/6 - 2.5)
                             .attr('font-size', '14px')
                             .attr('font-family', 'Open Sans')
                             .attr('text-anchor', 'middle')
@@ -216,48 +269,65 @@
                         
                         for (var i=1; i<7; i+=2) { 
                         svg.append('text')
-                            .text('6%')
-                            .attr('x', x(6))
-                            .attr('y', i*(window.innerHeight - 125)/6 - 2.5)
+                            .text('6')
+                            .attr('x', x(6) - 20)
+                            .attr('y', i*(window.innerHeight - 200)/6 - 50)
                             .attr('font-size', '15px')
                             .attr('font-family', 'Open Sans');
                             
-                         svg.append('text')
-                            .text('60%')
-                            .attr('x', x(60) - 29)
-                            .attr('y', i*(window.innerHeight - 125)/6 - 2.5)
+                        svg.append('text')
+                            .text('60')
+                            .attr('x', x(60) + 12)
+                            .attr('y', i*(window.innerHeight - 200)/6 - 50)
                             .attr('font-size', '15px')
                             .attr('font-family', 'Open Sans');
+                            
+                        svg.append('text')
+                            .text('6')
+                            .attr('x', x(6) - 20)
+                            .attr('y', i*(window.innerHeight - 200)/6 + 44)
+                            .attr('font-size', '15px')
+                            .attr('font-family', 'Open Sans');
+                            
+                        svg.append('text')
+                            .text('60')
+                            .attr('x', x(60) + 12)
+                            .attr('y', i*(window.innerHeight - 200)/6 + 44)
+                            .attr('font-size', '15px')
+                            .attr('font-family', 'Open Sans');  
+                        
                         }
                         
                         var decreasing = svg.append('text')
-                            .text('<----------- DECREASING INEQUALITY (IMPROVEMENT)')
+                            .text('<----------- DECREASING INEQUALITY')
                             .attr('x', x(30))
-                            .attr('y', 2*(window.innerHeight - 125)/6 - 2.5)
-                            .attr('font-size', '14px')
+                            .attr('y', 2*(window.innerHeight - 200)/6 - 2.5)
+                            .attr('font-size', '16px')
                             .attr('font-family', 'Open Sans')
-                            .attr('text-anchor', 'middle');
+                            .attr('text-anchor', 'middle')
+                            .attr('fill', 'olive');
                         
                         var increasing = svg.append('text')
-                            .text('INCREASING INEQUALITY (DETERIORATION) ----------->')
+                            .text('INCREASING INEQUALITY ----------->')
                             .attr('x', x(30))
-                            .attr('y', 4*(window.innerHeight - 125)/6 - 2.5)
-                            .attr('font-size', '14px')
+                            .attr('y', 4*(window.innerHeight - 200)/6 - 2.5)
+                            .attr('font-size', '16px')
                             .attr('font-family', 'Open Sans')
-                            .attr('text-anchor', 'middle');
+                            .attr('text-anchor', 'middle')
+                            .attr('fill', '#B6202D')
                             
                         for (var i=1; i<7; i+=2) {    
                             svg.append('text')
                                 .text('2010')
                                 .attr('x', 225)
-                                .attr('y', i*(window.innerHeight - 125)/6 - 50)
+                                .attr('y', i*(window.innerHeight - 200)/6 - 50)
                                 .attr('font-size', '14px')
                                 .attr('font-family', 'Open Sans');
                                 
                             svg.append('text')
                                 .text('2014')
                                 .attr('x', 225)
-                                .attr('y', i*(window.innerHeight - 125)/6 + 44)
+                                .attr('y', i*(window.innerHeight - 200)/6 + 44)
                                 .attr('font-size', '14px')
                                 .attr('font-family', 'Open Sans');
                         }
@@ -269,49 +339,65 @@
                             .append('circle')
                             .attr('class', function(d,i) { return d.Country.slice(1).replace(/\s+/g, '').replace(/'/g, '') })
                             .attr('cx', function(d, i) { return x(d["2010"]) })
-                            .attr('cy', (window.innerHeight - 125)/6 - 57)
+                            .attr('cy', (window.innerHeight - 200)/6 - 57)
                             .attr('r', 5)
-                            .attr('fill', 'goldenrod')
+                            .attr('fill', function(d) {
+                                if(d["2010"] < d["2014"]) 
+                                    return '#B6202D';
+                                else
+                                    return 'olive';
+                            })
                             .attr('opacity', '0.5')
+                        
+                        svg.selectAll('label1a')
+                            .data(educationData)
+                            .enter()
+                            .append('text')
+                            .text(function(d) { return d.Country + ', ' + d["2010"] })
+                            .attr('class', 'label')
+                            .attr('id', function(d,i) { return d.Country.slice(1).replace(/\s+/g, '').replace(/'/g, '') })
+                            .attr('x', function(d) { return x(d["2010"]) })
+                            .attr('y', (window.innerHeight - 200)/6 - 72)
+                            .attr('font-size', '0.1px')
+                            .attr('font-family', 'Open Sans');
                             
                         svg.selectAll('selector1a')
                             .data(educationData)
                             .enter()
                             .append('ellipse')
-                            .attr('class', function(d,i) { return d.Country.slice(1).replace(/\s+/g, '').replace(/'/g, '') })
+                            .attr('id', function(d,i) { return d.Country.slice(1).replace(/\s+/g, '').replace(/'/g, '') })
                             .attr('cx', function(d, i) { return x(d["2010"]) })
-                            .attr('cy', (window.innerHeight - 125)/6 - 57)
+                            .attr('cy', (window.innerHeight - 200)/6 - 57)
                             .attr('rx', 5)
                             .attr('ry', 20)
                             .attr('opacity', '0')
                             .on('mouseover', function(d) {
-                                tooltip2.select('.info').html(d.Country + ', ' + d[2010]);
-                                tooltip2.style('display', 'block');
-                                tooltip2.style('color', 'black')
-                                    .style("left", (d3.event.pageX - 10) + "px")     
-                                    .style("top", (d3.event.pageY - 50) + "px");
                                 d3.selectAll('.' + d.Country.slice(1).replace(/\s+/g, '').replace(/'/g, ''))
                                     .style('stroke-width', '2.5')
-                                    .style('stroke', 'black');
+                                    .style('stroke', 'black')
+                                    // .selectAll('#connection')
+                                    //     .attr('stroke', function(d) {
+                                    //         if (d["2010"] > d["2014"]) {
+                                    //             return 'olive';
+                                    //         }
+                                    //         else {
+                                    //             return 'maroon'
+                                    //         }
+                                    //         })
+                                d3.selectAll('#' + d.Country.slice(1).replace(/\s+/g, '').replace(/'/g, ''))
+                                    .attr('font-size', '14px');
                                 d3.select('#countryname').style('display', 'none')
-                                d3.select('.title')
-                                    .append("span")
-                                    .attr('id', 'curCount')
-                                    .style('color', 'goldenrod')
-                                    .html(d.Country.toUpperCase())
-
+                                d3.select('select').property('value', d.Country.slice(1))
                             })
                             .on('mouseout', function(d) {
-                                d3.select(this)
-                                    .style('stroke-width', '0');
-                                tooltip2.style('display', 'none');
-                                d3.selectAll('.' + d.Country.slice(1).replace(/\s+/g, '').replace(/'/g, ''))
+                                d3.selectAll('circle')
                                     .style('stroke-width', '0');
                                 d3.selectAll('#connection')
                                     .style('stroke-width', '1')
                                     .style('stroke', 'gray');
-                                d3.select('#curCount').remove()
-                                d3.select('#countryname').style('display', 'inline')
+                                d3.selectAll('.label')
+                                    .attr('font-size', '0px')
+                                d3.select('select').property('value', 'Sub-Saharan Africa')
                             })
                             .on('click', function(d) {
                                 d3.select(this)
@@ -326,10 +412,28 @@
                             .append('circle')
                             .attr('class', function(d,i) { return d.Country.slice(1).replace(/\s+/g, '').replace(/'/g, '') })
                             .attr('cx', function(d, i) { return x(d["2014"]) })
-                            .attr('cy', (window.innerHeight - 125)/6 + 37)
+                            .attr('cy', (window.innerHeight - 200)/6 + 37)
                             .attr('r', 5)
-                            .attr('fill', 'goldenrod')
+                            .attr('fill', function(d) {
+                                if(d["2010"] < d["2014"]) 
+                                    return '#B6202D';
+                                else
+                                    return 'olive';
+                            })
                             .attr('opacity', '0.5')
+                            .style('z-index', '-1000')
+                            
+                        svg.selectAll('label1b')
+                            .data(educationData)
+                            .enter()
+                            .append('text')
+                            .text(function(d) { return d.Country + ', ' + d["2014"] })
+                            .attr('class', 'label')
+                            .attr('id', function(d,i) { return d.Country.slice(1).replace(/\s+/g, '').replace(/'/g, '') })
+                            .attr('x', function(d) { return x(d["2014"]) })
+                            .attr('y', (window.innerHeight - 200)/6 + 60)
+                            .attr('font-size', '0.1px')
+                            .attr('font-family', 'Open Sans');
                             
                         svg.selectAll('selector1b')
                             .data(educationData)
@@ -337,40 +441,27 @@
                             .append('ellipse')
                             .attr('class', function(d,i) { return d.Country.slice(1).replace(/\s+/g, '').replace(/'/g, '') })
                             .attr('cx', function(d, i) { return x(d["2014"]) })
-                            .attr('cy', (window.innerHeight - 125)/6 + 37)
+                            .attr('cy', (window.innerHeight - 200)/6 + 37)
                             .attr('rx', 5)
                             .attr('ry', 20)
                             .attr('opacity', '0')
                             .on('mouseover', function(d) {
-                                d3.select(this)
-                                    .style('stroke-width', '2.5')
-                                    .style('stroke', 'black');
-                                tooltip2.select('.info').html(d.Country + ', ' + d[2014]);
-                                tooltip2.style('display', 'block');
-                                tooltip2.style('color', 'black')
-                                    .style("left", (d3.event.pageX - 10) + "px")     
-                                    .style("top", (d3.event.pageY + 10) + "px"); 
+                                d3.selectAll('#' + d.Country.slice(1).replace(/\s+/g, '').replace(/'/g, ''))
+                                    .attr('font-size', '14px');
                                 d3.selectAll('.' + d.Country.slice(1).replace(/\s+/g, '').replace(/'/g, ''))
                                     .style('stroke-width', '2.5')
                                     .style('stroke', 'black');
-                                d3.select('#countryname').style('display', 'none')
-                                d3.select('.title')
-                                    .append("span")
-                                    .attr('id', 'curCount')
-                                    .style('color', 'goldenrod')
-                                    .html(d.Country.toUpperCase());
+                                d3.select('select').property('value', d.Country.slice(1))
                             })
                             .on('mouseout', function(d) {
-                                d3.select(this)
-                                    .style('stroke-width', '0');
-                                tooltip2.style('display', 'none');
-                                d3.selectAll('.' + d.Country.slice(1).replace(/\s+/g, '').replace(/'/g, ''))
+                                d3.selectAll('.label')
+                                    .attr('font-size', '0px');
+                                d3.selectAll('circle')
                                     .style('stroke-width', '0');
                                 d3.selectAll('#connection')
                                     .style('stroke-width', '1')
                                     .style('stroke', 'gray');
-                                d3.select('#curCount').remove()
-                                d3.select('#countryname').style('display', 'inline')
+                                d3.select('select').property('value', 'Sub-Saharan Africa')
                             })
                             .on('click', function(d) {
                                 d3.select(this)
@@ -386,9 +477,9 @@
                             .attr('id', 'connection')
                             .attr('class', function(d,i) { return d.Country.slice(1).replace(/\s+/g, '').replace(/'/g, '') })
                             .attr('x1', function(d, i) { return x(d["2010"]) })
-                            .attr('y1', (window.innerHeight - 125)/6 - 57)
+                            .attr('y1', (window.innerHeight - 200)/6 - 57)
                             .attr('x2', function(d, i) { return x(d["2014"]) })
-                            .attr('y2', (window.innerHeight - 125)/6 + 37)
+                            .attr('y2', (window.innerHeight - 200)/6 + 37)
                             .attr('stroke-width', 1)
                             .attr('stroke', 'gray')
                             .attr('opacity', '0.75')
@@ -402,10 +493,27 @@
                             .append('circle')
                             .attr('class', function(d,i) { return d.Country.slice(1).replace(/\s+/g, '').replace(/'/g, '') })
                             .attr('cx', function(d, i) { return x(d["2010"]) })
-                            .attr('cy', (window.innerHeight - 125)/2 - 57)
+                            .attr('cy', (window.innerHeight - 200)/2 - 57)
                             .attr('r', 5)
-                            .attr('fill', 'goldenrod')
+                            .attr('fill', function(d) {
+                                if(d["2010"] < d["2014"]) 
+                                    return '#B6202D';
+                                else
+                                    return 'olive';
+                            })
                             .attr('opacity', '0.5')
+                            
+                        svg.selectAll('label2a')
+                            .data(healthData)
+                            .enter()
+                            .append('text')
+                            .text(function(d) { return d.Country + ', ' + d["2010"] })
+                            .attr('class', 'label')
+                            .attr('id', function(d,i) { return d.Country.slice(1).replace(/\s+/g, '').replace(/'/g, '') })
+                            .attr('x', function(d) { return x(d["2010"]) })
+                            .attr('y', (window.innerHeight - 200)/2 - 72)
+                            .attr('font-size', '0.1px')
+                            .attr('font-family', 'Open Sans');
                             
                         svg.selectAll('selector2a')
                             .data(healthData)
@@ -413,37 +521,28 @@
                             .append('ellipse')
                             .attr('class', function(d,i) { return d.Country.slice(1).replace(/\s+/g, '').replace(/'/g, '') })
                             .attr('cx', function(d, i) { return x(d["2010"]) })
-                            .attr('cy', (window.innerHeight - 125)/2 - 57)
+                            .attr('cy', (window.innerHeight - 200)/2 - 57)
                             .attr('rx', 5)
                             .attr('ry', 20)
                             .attr('fill', 'goldenrod')
                             .attr('opacity', '0')
                             .on('mouseover', function(d) {
-                                tooltip2.select('.info').html(d.Country + ', ' + d[2010]);
-                                tooltip2.style('display', 'block');
-                                tooltip2.style('color', 'black')
-                                    .style("left", (d3.event.pageX - 10) + "px")     
-                                    .style("top", (d3.event.pageY - 50) + "px");
+                                d3.selectAll('#' + d.Country.slice(1).replace(/\s+/g, '').replace(/'/g, ''))
+                                    .attr('font-size', '14px');
                                 d3.selectAll('.' + d.Country.slice(1).replace(/\s+/g, '').replace(/'/g, ''))
                                     .style('stroke-width', '2.5')
                                     .style('stroke', 'black');
-                                d3.select('#countryname').style('display', 'none')
-                                d3.select('.title')
-                                    .append("span")
-                                    .attr('id', 'curCount')
-                                    .style('color', 'goldenrod')
-                                    .html(d.Country.toUpperCase())
+                                d3.select('select').property('value', d.Country.slice(1))
                             })
                             .on('mouseout', function(d) {
-
-                                tooltip2.style('display', 'none');
-                                d3.selectAll('.' + d.Country.slice(1).replace(/\s+/g, '').replace(/'/g, ''))
+                                d3.selectAll('.label')
+                                    .attr('font-size', '0px');
+                                d3.selectAll('circle')
                                     .style('stroke-width', '0');
                                 d3.selectAll('#connection')
                                     .style('stroke-width', '1')
                                     .style('stroke', 'gray');
-                                d3.select('#curCount').remove()
-                                d3.select('#countryname').style('display', 'inline')
+                                d3.select('select').property('value', 'Sub-Saharan Africa')
                             })
                             .on('click', function(d) {
                                 tooltip.select('.sentence').html(d.Country + ' went from a health inequality of  ' + d['2010'] + ' in 2010 to   ' + d['2014'] + ' in 2014.');
@@ -458,10 +557,27 @@
                             .append('circle')
                             .attr('class', function(d,i) { return d.Country.slice(1).replace(/\s+/g, '').replace(/'/g, '') })
                             .attr('cx', function(d, i) { return x(d["2014"]) })
-                            .attr('cy', (window.innerHeight - 125)/2 + 37)
+                            .attr('cy', (window.innerHeight - 200)/2 + 37)
                             .attr('r', 5)
-                            .attr('fill', 'goldenrod')
+                            .attr('fill', function(d) {
+                                if(d["2010"] < d["2014"]) 
+                                    return '#B6202D';
+                                else
+                                    return 'olive';
+                            })
                             .attr('opacity', '0.5')
+                            
+                        svg.selectAll('label2b')
+                            .data(healthData)
+                            .enter()
+                            .append('text')
+                            .text(function(d) { return d.Country + ', ' + d["2014"] })
+                            .attr('class', 'label')
+                            .attr('id', function(d,i) { return d.Country.slice(1).replace(/\s+/g, '').replace(/'/g, '') })
+                            .attr('x', function(d) { return x(d["2014"]) })
+                            .attr('y', (window.innerHeight - 200)/2 + 60)
+                            .attr('font-size', '0.1px')
+                            .attr('font-family', 'Open Sans');
                             
                         svg.selectAll('selector2b')
                             .data(healthData)
@@ -469,36 +585,27 @@
                             .append('ellipse')
                             .attr('class', function(d,i) { return d.Country.slice(1).replace(/\s+/g, '').replace(/'/g, '') })
                             .attr('cx', function(d, i) { return x(d["2014"]) })
-                            .attr('cy', (window.innerHeight - 125)/2 + 37)
+                            .attr('cy', (window.innerHeight - 200)/2 + 37)
                             .attr('rx', 5)
                             .attr('ry', 20)
                             .attr('opacity', '0')
                             .on('mouseover', function(d) {
-                                tooltip2.select('.info').html(d.Country + ', ' + d[2014]);
-                                tooltip2.style('display', 'block');
-                                tooltip2.style('color', 'black')
-                                    .style("left", (d3.event.pageX - 10) + "px")     
-                                    .style("top", (d3.event.pageY + 10) + "px");  
+                                d3.selectAll('#' + d.Country.slice(1).replace(/\s+/g, '').replace(/'/g, ''))
+                                    .attr('font-size', '14px');
                                 d3.selectAll('.' + d.Country.slice(1).replace(/\s+/g, '').replace(/'/g, ''))
                                     .style('stroke-width', '2.5')
                                     .style('stroke', 'black');
-                                d3.select('#countryname').style('display', 'none')
-                                d3.select('.title')
-                                    .append("span")
-                                    .attr('id', 'curCount')
-                                    .style('color', 'goldenrod')
-                                    .html(d.Country.toUpperCase());
+                                d3.select('select').property('value', d.Country.slice(1))
                             })
                             .on('mouseout', function(d) {
-
-                                tooltip2.style('display', 'none');
-                                d3.selectAll('.' + d.Country.slice(1).replace(/\s+/g, '').replace(/'/g, ''))
+                                d3.selectAll('.label')
+                                    .attr('font-size', '0px');
+                                d3.selectAll('circle')
                                     .style('stroke-width', '0');
                                 d3.selectAll('#connection')
                                     .style('stroke-width', '1')
                                     .style('stroke', 'gray');
-                                d3.select('#curCount').remove()
-                                d3.select('#countryname').style('display', 'inline')
+                                d3.select('select').property('value', 'Sub-Saharan Africa')
                             })
                             .on('click', function(d) {
                                 d3.select(this)
@@ -515,9 +622,9 @@
                             .attr('id', 'connection')
                             .attr('class', function(d,i) { return d.Country.slice(1).replace(/\s+/g, '').replace(/'/g, '') })
                             .attr('x1', function(d, i) { return x(d["2010"]) })
-                            .attr('y1', (window.innerHeight - 125)/2 - 57)
+                            .attr('y1', (window.innerHeight - 200)/2 - 57)
                             .attr('x2', function(d, i) { return x(d["2014"]) })
-                            .attr('y2', (window.innerHeight - 125)/2 + 37)
+                            .attr('y2', (window.innerHeight - 200)/2 + 37)
                             .attr('stroke-width', 1)
                             .attr('stroke', 'gray')
                             .attr('opacity', '0.75')
@@ -531,10 +638,27 @@
                             .append('circle')
                             .attr('class', function(d,i) { return d.Country.slice(1).replace(/\s+/g, '').replace(/'/g, '') })
                             .attr('cx', function(d, i) { return x(d["2010"]) })
-                            .attr('cy', 5*(window.innerHeight - 125)/6 - 57)
+                            .attr('cy', 5*(window.innerHeight - 200)/6 - 57)
                             .attr('r', 5)
-                            .attr('fill', 'goldenrod')
+                            .attr('fill', function(d) {
+                                if(d["2010"] < d["2014"]) 
+                                    return '#B6202D';
+                                else
+                                    return 'olive';
+                            })
                             .attr('opacity', '0.5')
+                            
+                        svg.selectAll('label3a')
+                            .data(incomeData)
+                            .enter()
+                            .append('text')
+                            .text(function(d) { return d.Country + ', ' + d["2010"] })
+                            .attr('class', 'label')
+                            .attr('id', function(d,i) { return d.Country.slice(1).replace(/\s+/g, '').replace(/'/g, '') })
+                            .attr('x', function(d) { return x(d["2010"]) })
+                            .attr('y', 5*(window.innerHeight - 200)/6 - 72)
+                            .attr('font-size', '0.1px')
+                            .attr('font-family', 'Open Sans');
                             
                         svg.selectAll('selector3a')
                             .data(incomeData)
@@ -542,36 +666,27 @@
                             .append('ellipse')
                             .attr('class', function(d,i) { return d.Country.slice(1).replace(/\s+/g, '').replace(/'/g, '') })
                             .attr('cx', function(d, i) { return x(d["2010"]) })
-                            .attr('cy', 5*(window.innerHeight - 125)/6 - 57)
+                            .attr('cy', 5*(window.innerHeight - 200)/6 - 57)
                             .attr('rx', 5)
                             .attr('ry', 20)
                             .attr('opacity', '0')
                             .on('mouseover', function(d) {
-                                tooltip2.select('.info').html(d.Country + ', ' + d[2010]);
-                                tooltip2.style('display', 'block');
-                                tooltip2.style('color', 'black')
-                                    .style("left", (d3.event.pageX - 10) + "px")     
-                                    .style("top", (d3.event.pageY - 50) + "px");  
+                                d3.selectAll('#' + d.Country.slice(1).replace(/\s+/g, '').replace(/'/g, ''))
+                                    .attr('font-size', '14px'); 
                                 d3.selectAll('.' + d.Country.slice(1).replace(/\s+/g, '').replace(/'/g, ''))
                                     .style('stroke-width', '2.5')
                                     .style('stroke', 'black');
-                                d3.select('#countryname').style('display', 'none')
-                                d3.select('.title')
-                                    .append("span")
-                                    .attr('id', 'curCount')
-                                    .style('color', 'goldenrod')
-                                    .html(d.Country.toUpperCase());
+                                d3.select('select').property('value', d.Country.slice(1))
                             })
                             .on('mouseout', function(d) {
-
-                                tooltip2.style('display', 'none');
-                                d3.selectAll('.' + d.Country.slice(1).replace(/\s+/g, '').replace(/'/g, ''))
+                                d3.selectAll('.label')
+                                    .attr('font-size', '0px');
+                                d3.selectAll('circle')
                                     .style('stroke-width', '0');
                                 d3.selectAll('#connection')
                                     .style('stroke-width', '1')
                                     .style('stroke', 'gray');
-                                d3.select('#curCount').remove()
-                                d3.select('#countryname').style('display', 'inline')
+                                d3.select('select').property('value', 'Sub-Saharan Africa')
                             })
                             .on('click', function(d) {
                                 d3.select(this)
@@ -588,10 +703,27 @@
                             .append('circle')
                             .attr('class', function(d,i) { return d.Country.slice(1).replace(/\s+/g, '').replace(/'/g, '') })
                             .attr('cx', function(d, i) { return x(d["2014"]) })
-                            .attr('cy', 5*(window.innerHeight - 125)/6 + 37)
+                            .attr('cy', 5*(window.innerHeight - 200)/6 + 37)
                             .attr('r', 5)
-                            .attr('fill', 'goldenrod')
+                            .attr('fill', function(d) {
+                                if(d["2010"] < d["2014"]) 
+                                    return '#B6202D';
+                                else
+                                    return 'olive';
+                            })
                             .attr('opacity', '0.5')
+                            
+                        svg.selectAll('label3b')
+                            .data(incomeData)
+                            .enter()
+                            .append('text')
+                            .text(function(d) { return d.Country + ', ' + d["2014"] })
+                            .attr('class', 'label')
+                            .attr('id', function(d,i) { return d.Country.slice(1).replace(/\s+/g, '').replace(/'/g, '') })
+                            .attr('x', function(d) { return x(d["2014"]) })
+                            .attr('y', 5*(window.innerHeight - 200)/6 + 60)
+                            .attr('font-size', '0.1px')
+                            .attr('font-family', 'Open Sans');
                                     
                         svg.selectAll('selector3b')
                             .data(incomeData)
@@ -599,36 +731,27 @@
                             .append('ellipse')
                             .attr('class', function(d,i) { return d.Country.slice(1).replace(/\s+/g, '').replace(/'/g, '') })
                             .attr('cx', function(d, i) { return x(d["2014"]) })
-                            .attr('cy', 5*(window.innerHeight - 125)/6 + 37)
+                            .attr('cy', 5*(window.innerHeight - 200)/6 + 37)
                             .attr('rx', 5)
                             .attr('ry', 20)
                             .attr('opacity', '0')
                             .on('mouseover', function(d) {
-                                tooltip2.select('.info').html(d.Country + ', ' + d[2014]);
-                                tooltip2.style('display', 'block');
-                                tooltip2.style('color', 'black')
-                                    .style("left", (d3.event.pageX - 10) + "px")     
-                                    .style("top", (d3.event.pageY + 10) + "px");  
+                                d3.selectAll('#' + d.Country.slice(1).replace(/\s+/g, '').replace(/'/g, ''))
+                                    .attr('font-size', '14px');  
                                 d3.selectAll('.' + d.Country.slice(1).replace(/\s+/g, '').replace(/'/g, ''))
                                     .style('stroke-width', '2.5')
                                     .style('stroke', 'black');
-                                d3.select('#countryname').style('display', 'none')
-                                d3.select('.title')
-                                    .append("span")
-                                    .attr('id', 'curCount')
-                                    .style('color', 'goldenrod')
-                                    .html(d.Country.toUpperCase())
+                                d3.select('select').property('value', d.Country.slice(1))
                             })
                             .on('mouseout', function(d) {
-
-                                tooltip2.style('display', 'none');
-                                d3.selectAll('.' + d.Country.slice(1).replace(/\s+/g, '').replace(/'/g, ''))
+                                d3.selectAll('.label')
+                                    .attr('font-size', '0px');
+                                d3.selectAll('circle')
                                     .style('stroke-width', '0');
                                 d3.selectAll('#connection')
                                     .style('stroke-width', '1')
                                     .style('stroke', 'gray');
-                                d3.select('#curCount').remove()
-                                d3.select('#countryname').style('display', 'inline')
+                                d3.select('select').property('value', 'Sub-Saharan Africa')
                             })
                             .on('click', function(d) {
                                 d3.select(this)
@@ -647,9 +770,9 @@
                             .attr('id', 'connection')
                             .attr('class', function(d,i) { return d.Country.slice(1).replace(/\s+/g, '').replace(/'/g, '') })
                             .attr('x1', function(d, i) { return x(d["2010"]) })
-                            .attr('y1', 5*(window.innerHeight - 125)/6 - 57)
+                            .attr('y1', 5*(window.innerHeight - 200)/6 - 57)
                             .attr('x2', function(d, i) { return x(d["2014"]) })
-                            .attr('y2', 5*(window.innerHeight - 125)/6 + 37)
+                            .attr('y2', 5*(window.innerHeight - 200)/6 + 37)
                             .attr('stroke-width', 1)
                             .attr('stroke', 'gray')
                             .attr('opacity', '0.75')
@@ -660,8 +783,8 @@
                             svg.append('line')
                                 .attr('x1', x(6))
                                 .attr('x2', x(60))
-                                .attr('y1', i*(window.innerHeight - 125)/6 - 57)
-                                .attr('y2', i*(window.innerHeight - 125)/6 - 57)
+                                .attr('y1', i*(window.innerHeight - 200)/6 - 57)
+                                .attr('y2', i*(window.innerHeight - 200)/6 - 57)
                                 .attr('stroke-width', 1)
                                 .attr('stroke', 'gray')
                                 .attr('opacity', '0.5');
@@ -669,8 +792,8 @@
                             svg.append('line')
                                 .attr('x1', x(6))
                                 .attr('x2', x(60))
-                                .attr('y1', i*(window.innerHeight - 125)/6 + 37)
-                                .attr('y2', i*(window.innerHeight - 125)/6 + 37)
+                                .attr('y1', i*(window.innerHeight - 200)/6 + 37)
+                                .attr('y2', i*(window.innerHeight - 200)/6 + 37)
                                 .attr('stroke-width', 1)
                                 .attr('stroke', 'gray')
                                 .attr('opacity', '0.5');
