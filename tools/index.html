@@ -345,7 +345,7 @@
                             .attr('cy', (window.innerHeight - 200)/6 - 57)
                             .attr('r', 5)
                             .attr('fill', function(d) {
-                                if(d["2010"] < d["2014"]) 
+                                if(parseInt(d["2010"]) < parseInt(d["2014"])) 
                                     return '#B6202D';
                                 else
                                     return 'olive';
@@ -406,7 +406,7 @@
                                 d3.select(this)
                                 tooltip.select('.sentence').html(d.Country + ' went from an education inequality of  ' + d['2010'] + ' in 2010 to   ' + d['2014'] + ' in 2014.');
                                 tooltip.style('display', 'block');
-                                if(d["2010"] < d["2014"]) 
+                                if(parseInt(d["2010"]) < parseInt(d["2014"])) 
                                     tooltip.style('color', '#B6202D')
                                 else
                                     tooltip.style('color', 'olive')
@@ -421,8 +421,11 @@
                             .attr('cy', (window.innerHeight - 200)/6 + 37)
                             .attr('r', 5)
                             .attr('fill', function(d) {
-                                if(d["2010"] < d["2014"]) 
+                                if(parseInt(d["2010"]) < parseInt(d["2014"])) 
                                     return '#B6202D';
+                                if(d.Country == " Ghana" || d.Country == " Gabon") {
+                                    return '#B6202D';
+                                }
                                 else
                                     return 'olive';
                             })
@@ -473,7 +476,7 @@
                                 d3.select(this)
                                 tooltip.select('.sentence').html(d.Country + ' went from an education inequality of  ' + d['2010'] + ' in 2010 to   ' + d['2014'] + ' in 2014.');
                                 tooltip.style('display', 'block');
-                                if(d["2010"] < d["2014"]) 
+                                if(parseInt(d["2010"]) < parseInt(d["2014"])) 
                                     tooltip.style('color', '#B6202D')
                                 else
                                     tooltip.style('color', 'olive')
@@ -505,7 +508,7 @@
                             .attr('cy', (window.innerHeight - 200)/2 - 57)
                             .attr('r', 5)
                             .attr('fill', function(d) {
-                                if(d["2010"] < d["2014"]) 
+                                if(parseInt(d["2010"]) < parseInt(d["2014"])) 
                                     return '#B6202D';
                                 else
                                     return 'olive';
@@ -555,7 +558,7 @@
                             .on('click', function(d) {
                                 tooltip.select('.sentence').html(d.Country + ' went from a health inequality of  ' + d['2010'] + ' in 2010 to   ' + d['2014'] + ' in 2014.');
                                 tooltip.style('display', 'block');
-                                if(d["2010"] < d["2014"]) 
+                                if(parseInt(d["2010"]) < parseInt(d["2014"])) 
                                     tooltip.style('color', '#B6202D')
                                 else
                                     tooltip.style('color', 'olive')
@@ -571,7 +574,7 @@
                             .attr('cy', (window.innerHeight - 200)/2 + 37)
                             .attr('r', 5)
                             .attr('fill', function(d) {
-                                if(d["2010"] < d["2014"]) 
+                                if(parseInt(d["2010"]) < parseInt(d["2014"])) 
                                     return '#B6202D';
                                 else
                                     return 'olive';
@@ -623,7 +626,7 @@
                                     .style('fill', 'white');
                                 tooltip.select('.sentence').html(d.Country + ' went from a health inequality of  ' + d['2010'] + ' in 2010 to   ' + d['2014'] + ' in 2014.');
                                 tooltip.style('display', 'block');
-                                if(d["2010"] < d["2014"]) 
+                                if(parseInt(d["2010"]) < parseInt(d["2014"])) 
                                     tooltip.style('color', '#B6202D')
                                 else
                                     tooltip.style('color', 'olive')
@@ -655,7 +658,7 @@
                             .attr('cy', 5*(window.innerHeight - 200)/6 - 57)
                             .attr('r', 5)
                             .attr('fill', function(d) {
-                                if(d["2010"] < d["2014"]) 
+                                if(parseInt(d["2010"]) < parseInt(d["2014"])) 
                                     return '#B6202D';
                                 else
                                     return 'olive';
@@ -707,7 +710,7 @@
                                     .style('fill', 'white');
                                 tooltip.select('.sentence').html(d.Country + ' went from an income inequality of  ' + d['2010'] + ' in 2010 to   ' + d['2014'] + ' in 2014.');
                                 tooltip.style('display', 'block');
-                                if(d["2010"] < d["2014"]) 
+                                if(parseInt(d["2010"]) < parseInt(d["2014"])) 
                                     tooltip.style('color', '#B6202D')
                                 else
                                     tooltip.style('color', 'olive')
@@ -723,7 +726,7 @@
                             .attr('cy', 5*(window.innerHeight - 200)/6 + 37)
                             .attr('r', 5)
                             .attr('fill', function(d) {
-                                if(d["2010"] < d["2014"]) 
+                                if(parseInt(d["2010"]) < parseInt(d["2014"])) 
                                     return '#B6202D';
                                 else
                                     return 'olive';
@@ -775,7 +778,7 @@
                                     .style('fill', 'white');
                                 tooltip.select('.sentence').html(d.Country + ' went from an income inequality of  ' + d['2010'] + ' in 2010 to   ' + d['2014'] + ' in 2014.');
                                 tooltip.style('display', 'block');
-                                if(d["2010"] < d["2014"]) 
+                                if(parseInt(d["2010"]) < parseInt(d["2014"])) 
                                     tooltip.style('color', '#B6202D')
                                 else
                                     tooltip.style('color', 'olive')
