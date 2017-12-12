@@ -2,7 +2,7 @@
  
  ### Preview
 
- [![screenshot](https://rikghosh.github.io/ms-1/tools/screenshot.png)](https://rikghosh.github.io/ms-1/tools/index.html)
+ [![screenshot](screenshot.png)](https://rikghosh.github.io/ms-1/tools/index.html)
  
  ### Abstract
  
